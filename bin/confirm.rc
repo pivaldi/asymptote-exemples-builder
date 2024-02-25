@@ -1,0 +1,69 @@
+#!/bin/bash
+
+## Come from https://ovya.github.io/bsfl/
+
+## @fn confirm()
+## @ingroup stdin
+## @brief Read from stdin for confirmation.
+## @details Read from stdin for confirmation with a fancy [y/n] echoed message.
+## The value of the parameter controls the default value when empty input.
+## @param string Optional default value when the user provides and
+## empty answer.
+## - If set to "y" an empty value will be interpreted as <yes>.
+## - If set to "n" an empty value will be interpreted as <no>.
+## - Other values disallow empty input value (the default).
+## @retval 0 if the confirmation is <yes>
+## @retval 1 in others cases.
+confirm() {
+    local yesno
+    declare -l yesno
+    local stryn
+    local emptyReturn
+    local allowempty
+
+
+    case "$1" in
+        [yY])
+            stryn='Y/n'
+            allowempty=true
+            emptyReturn=0
+
+            ;;
+
+        [nN])
+            stryn='y/N'
+            allowempty=true
+            emptyReturn=1
+            ;;
+
+        *)
+            stryn='y/n'
+            allowempty=false
+            ;;
+    esac
+
+    while [ "$yesno" != "y" -a "$yesno" != "n" ] ; do
+        echo -n "[${stryn}] "
+
+        read -r -p "" yesno
+
+        [ "$yesno" == "" ] && $allowempty && return $emptyReturn
+
+        case "${yesno}" in
+            [yY])
+                true # Keep it for tabs test suite !
+                return 0
+                ;;
+
+            [nN])
+                false # Keep it for tabs test suite !
+                return 1
+                ;;
+
+            *)
+                false # Keep it for tabs test suite !
+                msg_warning " => Please answer with n or y."
+                ;;
+        esac
+    done
+}

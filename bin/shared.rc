@@ -1,0 +1,80 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+. "$SCRIPT_DIR/config.rc" || exit 1
+
+## Default picture output format
+EXTIMAG="png"
+
+# ASYOPTION="-render=8 -maxviewport=1000 -noprc -glOptions=-iconic "
+# ASY_CMD=/usr/local/asymptote/bin/asy
+# ASYOPTION="-render=8 -noprc -maxtile=\(900,900\) "
+ASYOPTION="-noprc "
+
+[ -z $ROOT_PROJECT_DIR ] && {
+    echo 'ROOT_PROJECT_DIR environment variable is not set.'
+    echo "Use the command line 'ROOT_PROJECT_DIR=/xxx/xxx $0'"
+    exit 1
+}
+
+## https://stackoverflow.com/questions/1848415/remove-slash-from-the-end-of-a-variable
+case $ROOT_PROJECT_DIR in *[!/]*/) ROOT_PROJECT_DIR=${ROOT_PROJECT_DIR%"${ROOT_PROJECT_DIR##*[!/]}"};; esac
+
+ROOT_PROJECT_DIR="${ROOT_PROJECT_DIR}/"
+
+TMP_PROJECT_DIR="${ROOT_PROJECT_DIR}tmp/"
+
+## HTML export dir
+BUILD_DIR="${ROOT_PROJECT_DIR}build/"  # Doit se terminer par un '/'
+
+# L'adresse du site (utile pour de rares liens dans les html statiques)
+URIS='http://www.piprime.fr/' # statique
+URID="<?=get_bloginfo('url')?>" # dynamique
+
+# Directory where to write the xml files
+XML_OUT_DIR="${BUILD_DIR}xml/"
+
+ASY_SRC_DIR="${ROOT_PROJECT_DIR}src/"
+
+# The list of topics to handle
+TOPICS="$(cd ${ASY_SRC_DIR} && find -mindepth 1 ! -path ./modules -type d -print | sed 's!^\./!!g')"
+
+echo $TOPICS
+exit 0
+
+# Directory, relatively from TARGET_DIR, where the asy pictures are
+ASSET_ASY_REL_DIR="asset/asy/"
+ASSET_ASY_DIR="${BUILD_DIR}${ASSET_ASY_REL_DIR}"
+
+CURRENT_DIR="$(pwd)"
+
+# Retrieve the content of the file $1
+# inside the html tags <$2> and </$2>
+function inner-tag() {
+    cat $1 | awk -v FS="^Z" "/<$2>/,/<\/$2>/" | sed "s/<\/*$2>//g"
+}
+
+# Retrive the asy fig source files in the directory $1
+function get_asy_files()
+{
+    find "$1" -maxdepth 1 -name 'fig*\.asy' -type f -print | sort
+}
+
+# Retrive the source
+function get-src-dir() {
+    # Directory of the source code to handle
+    SRC_DIR="${ROOT_PROJECT_DIR}/src/$1/"
+
+    [ -e $SRC_DIR ] || {
+        echo "$SRC_DIR does not exist"
+        exit 1
+    }
+
+    echo $SRC_DIR
+}
+
+# lighten class names given by htmlize.
+function lighten-htmlize-output() {
+    sed -i 's/class="builtin"/class="_bt"/g;s/class="comment"/class="_cm"/g;s/class="comment-delimiter"/class="_cd"/g;s/class="constant"/class="_cn"/g;s/class="function-name"/class="_fn"/g;s/class="keyword"/class="_kw"/g;s/class="string"/class="_st"/g;s/class="variable-name"/class="_vn"/g;s/pi-comment-sub-section/_pcss/g;s/sh-escaped-newline/_shenl/g;s/font-latex-sedate/_fls/g;s/font-latex-math/_flm/g;s/font-latex-subscript/_flsub/g;s/font-latex-superscript/_flsup/g' "$@"
+}
