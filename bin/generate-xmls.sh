@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 # Load shared code
-. $(dirname $0)/asy-shared.rc
+. $(dirname $0)/shared.rc || exit 1
 
 # The topic to handle
 _TOPICS="$1"
@@ -34,7 +34,6 @@ IMPORTe="\(<span class=\"builtin\">import<\/span>\) *spring"
 # On remplace Lsystem; par une lien pour le telecharger.
 COMC="s!${IMPORTc}!\1 <a href=\"https://github.com/pivaldi/asymptote-packages\">Lsystem</a>!g"
 COMD="s!${IMPORTd}!\1 <a href=\https://github.com/pivaldi/asymptote-packages\">carteApoints</a>!g"
-COMF="/syracuse/d"
 
 for topic in $_TOPICS; do
     echo "==> Handling topic '$topic'..."
@@ -44,9 +43,6 @@ for topic in $_TOPICS; do
     TARGET_XML_OUT_DIR="${XML_OUT_DIR}${topic}/"
     TMP_DIR="${TMP_PROJECT_DIR}${topic}/"
 
-    # get_asy_files $SRC_DIR
-    # exit 0
-
     # La categorie (le term_id) de plus bas niveau est sur la derniere ligne
     CATNUM=$(tail -n 1 "${SRC_DIR}category" | sed 's/-.*//g')
     CATEGORY=$(tail -n 1 "${SRC_DIR}category" | sed -E 's/^[0-9]+-//g')
@@ -55,16 +51,16 @@ for topic in $_TOPICS; do
     # * L'index de tous les codes *
     cat>${TARGET_XML_OUT_DIR}index.xml<<EOF
 <?xml version="1.0" ?>
-<asy-code title="Asy - `cat ${SRC_DIR}title`" date="`LANG=US date`">
-<presentation>`cat ${SRC_DIR}presentation`</presentation>
+<asy-code title="$(cat ${SRC_DIR}title.txt)" date="`LANG=US date`">
+<presentation>$(cat ${SRC_DIR}presentation.html)</presentation>
 EOF
 
     # ---------------
     # * Les figures *
     cat>${TARGET_XML_OUT_DIR}figures.xml<<EOF
 <?xml version="1.0" ?>
-<asy-figures title="Pic - `cat ${SRC_DIR}title`" date="`LANG=US date`" resource="${RES}">
-<presentation>`cat ${SRC_DIR}presentation`</presentation>
+<asy-figures title="Pic - $(cat ${SRC_DIR}title.txt)" date="`LANG=US date`" resource="${RES}">
+<presentation>$(cat ${SRC_DIR}presentation.html)</presentation>
 EOF
 
     numfig=1001
@@ -86,8 +82,7 @@ EOF
             emacsclient -q -e '(htmlize-file "'${fic}'" "'$htmlizedFile'")' > /dev/null
 
             # Modifying the html
-            sed -i -e "$COMB;$COMC;$COMD;$COMF" "$htmlizedFile" || exit 1
-            lighten-htmlize-output "$htmlizedFile" || exit 1
+            sed -i -e "$COMB;$COMC;$COMD" "$htmlizedFile" || exit 1
         fi
 
         #################################################
@@ -97,7 +92,7 @@ EOF
                 cut -f1 -d" " > "${fullssext}.id"
 
         ## The post id (useful for CMS).
-        POSTID=$(cat "${fullssext}.postid")
+        POSTID=$(cat "${fullssext}.id")
 
         width="none"
         height="none"
@@ -106,8 +101,8 @@ EOF
         # * code de la figure *
         cat>${TARGET_XML_OUT_DIR}${ficssext}.xml<<EOF
 <?xml version="1.0" ?>
-<asy-code title="Asy - `cat ${SRC_DIR}title`" date="`LANG=US date`">
-<presentation>`cat ${SRC_DIR}presentation`</presentation>
+<asy-code title="$(cat ${SRC_DIR}title.txt)" date="`LANG=US date`">
+<presentation>$(cat ${SRC_DIR}presentation.html)</presentation>
 <code number="${numfig#1}" filename="${ficssext}" \
 asyversion="`sed 's/ \[.*\]//g' ${fullssext}.ver`" `cat "${fullssext}.format"` \
 catname="${CATEGORY}" catnum="${CATNUM}" id="$(cat ${fullssext}.id)" \
