@@ -36,129 +36,140 @@ COMC="s!${IMPORTc}!\1 <a href=\"https://github.com/pivaldi/asymptote-packages\">
 COMD="s!${IMPORTd}!\1 <a href=\https://github.com/pivaldi/asymptote-packages\">carteApoints</a>!g"
 
 for topic in $_TOPICS; do
-    echo "==> Handling topic '$topic'..."
+  echo "==> Handling topic '$topic'..."
 
-    SRC_DIR="$(get-src-dir $topic)"
-    TARGET_ASSET_ASY_DIR="${ASSET_ASY_DIR}${topic}/"
-    TARGET_XML_OUT_DIR="${XML_OUT_DIR}${topic}/"
-    TMP_DIR="${TMP_PROJECT_DIR}${topic}/"
+  SRC_DIR="$(get-src-dir $topic)"
+  TARGET_ASSET_ASY_DIR="${ASSET_ASY_DIR}${topic}/"
+  TARGET_XML_OUT_DIR="${XML_OUT_DIR}${topic}/"
+  TMP_DIR="${TMP_PROJECT_DIR}${topic}/"
 
-    # La categorie (le term_id) de plus bas niveau est sur la derniere ligne
-    CATNUM=$(tail -n 1 "${SRC_DIR}category" | sed 's/-.*//g')
-    CATEGORY=$(tail -n 1 "${SRC_DIR}category" | sed -E 's/^[0-9]+-//g')
+  # La categorie (le term_id) de plus bas niveau est sur la derniere ligne
+  CATNUM=$(tail -n 1 "${SRC_DIR}category.txt" | sed 's/-.*//g')
+  CATEGORY=$(tail -n 1 "${SRC_DIR}category.txt" | sed -E 's/^[0-9]+-//g')
 
-    # -----------------------------
-    # * L'index de tous les codes *
-    cat>${TARGET_XML_OUT_DIR}index.xml<<EOF
+  # -----------------------------
+  # * L'index de tous les codes *
+  cat>${TARGET_XML_OUT_DIR}index.xml<<EOF
 <?xml version="1.0" ?>
 <asy-code title="$(cat ${SRC_DIR}title.txt)" date="`LANG=US date`">
 <presentation>$(cat ${SRC_DIR}presentation.html)</presentation>
 EOF
 
-    # ---------------
-    # * Les figures *
-    cat>${TARGET_XML_OUT_DIR}figures.xml<<EOF
+  # ---------------
+  # * Les figures *
+  cat>${TARGET_XML_OUT_DIR}figures.xml<<EOF
 <?xml version="1.0" ?>
 <asy-figures title="Pic - $(cat ${SRC_DIR}title.txt)" date="`LANG=US date`" resource="${RES}">
 <presentation>$(cat ${SRC_DIR}presentation.html)</presentation>
 EOF
 
-    numfig=1001
+  numfig=1001
 
-    for fic in $(get_asy_files $SRC_DIR) ; do
-        ficssext=${fic%.*}
-        ficssext=`basename $ficssext`
-        htmlizedFile="${TMP_DIR}${ficssext}.asy.html"
-        fullssext="${SRC_DIR}${ficssext}"
+  for fic in $(get_asy_files $SRC_DIR) ; do
+    echo "  => Found asy file $fic"
 
-        # le tag ADDPDF permet de mettre un lien vers le fichier .pdf
-        COMB="s%ADDPDF%<a href=\"###DIRNAME###${ficssext}.pdf\">${TARGET_ASSET_ASY_DIR}${ficssext}.pdf<\/a>%g"
+    ficssext=${fic%.*}
+    ficssext=$(basename $ficssext)
+    htmlizedFile="${TMP_DIR}${ficssext}.asy.html"
+    fullssext="${SRC_DIR}${ficssext}"
 
-        # *=========================================*
-        # *..Creating .html files from .asy files...*
-        # *=========================================*
-        if [ "${fic}" -nt "${htmlizedFile}" ]; then
-            echo "Htmlizing ${fic}"
-            emacsclient -q -e '(htmlize-file "'${fic}'" "'$htmlizedFile'")' > /dev/null
+    # le tag ADDPDF permet de mettre un lien vers le fichier .pdf
+    COMB="s%ADDPDF%<a href=\"###DIRNAME###${ficssext}.pdf\">${TARGET_ASSET_ASY_DIR}${ficssext}.pdf<\/a>%g"
 
-            # Modifying the html
-            sed -i -e "$COMB;$COMC;$COMD" "$htmlizedFile" || exit 1
-        fi
+    # *=========================================*
+    # *..Creating .html files from .asy files...*
+    # *=========================================*
+    if [ "${fic}" -nt "${htmlizedFile}" ]; then
+      echo "Htmlizing ${fic}"
+      # emacsclient -q -e '(htmlize-file "'${fic}'" "'$htmlizedFile'")' > /dev/null
+      $PYGMENTYZE_CMD -f html -o "$htmlizedFile" "${fic}"
+      echo "  => $htmlizedFile"
 
-        #################################################
+      # Modifying the html
+      sed -i -e "$COMB;$COMC;$COMD" "$htmlizedFile" || exit 1
+    fi
 
-        ## Creating unique key for code anchor
-        [ ! -e "${fullssext}.id" ] && md5sum "$fic" | \
-                cut -f1 -d" " > "${fullssext}.id"
+    #################################################
 
-        ## The post id (useful for CMS).
-        POSTID=$(cat "${fullssext}.id")
+    ## Creating unique key for code anchor
+    [ ! -e "${fullssext}.id" ] && md5sum "$fic" | \
+        cut -f1 -d" " > "${fullssext}.id"
 
-        width="none"
-        height="none"
+    ## The post id (useful for CMS).
+    POSTID=$(cat "${fullssext}.id")
 
-        # ---------------------
-        # * code de la figure *
-        cat>${TARGET_XML_OUT_DIR}${ficssext}.xml<<EOF
+    width="none"
+    height="none"
+    asy_version=
+
+    [ -e ${fullssext}.ver ] && {
+      asy_version=$(sed 's/ \[.*\]//g' ${fullssext}.ver)
+    } || {
+      asy_version=$($ASY_CMD --version 2>&1 | sed 1q | sed 's/ \[.*\]//')
+    }
+
+    # ---------------------
+    # * code de la figure *
+    cat>${TARGET_XML_OUT_DIR}${ficssext}.xml<<EOF
 <?xml version="1.0" ?>
 <asy-code title="$(cat ${SRC_DIR}title.txt)" date="`LANG=US date`">
 <presentation>$(cat ${SRC_DIR}presentation.html)</presentation>
 <code number="${numfig#1}" filename="${ficssext}" \
-asyversion="`sed 's/ \[.*\]//g' ${fullssext}.ver`" `cat "${fullssext}.format"` \
+asyversion="$asy_version" `cat "${fullssext}.format"` \
 catname="${CATEGORY}" catnum="${CATNUM}" id="$(cat ${fullssext}.id)" \
 smallImg="$([ -e ${fullssext}r.${EXTIMAG} ] && echo true || echo false)" \
 width="${width}" height="${height}">
 EOF
 
-        cat>>${TARGET_XML_OUT_DIR}index.xml<<EOF
+    cat>>${TARGET_XML_OUT_DIR}index.xml<<EOF
 <code number="${numfig#1}" filename="${ficssext}" postid="${POSTID}" \
-asyversion="`sed 's/ \[.*\]//g' ${fullssext}.ver`" `cat "${fullssext}.format"` \
+asyversion="$asy_version" `cat "${fullssext}.format"` \
 smallImg="$([ -e ${fullssext}r.${EXTIMAG} ] && echo true || echo false)" \
 width="${width}" height="${height}" id="$(cat ${fullssext}.id)">
 EOF
 
 
-        # Add eventual text present in figxxx.md
-        [ -e "${fullssext}.md" ] && {
-            ## md version here
-            echo "<text-md>" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
-            cat "${fullssext}.md" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
-            echo "</text-md>" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> ${TARGET_XML_OUT_DIR}index.xml
+    # Add eventual text present in figxxx.md
+    [ -e "${fullssext}.md" ] && {
+      ## md version here
+      echo "<text-md>" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
+      cat "${fullssext}.md" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
+      echo "</text-md>" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> ${TARGET_XML_OUT_DIR}index.xml
 
-            ## html converted version here
-            echo "<text-html>" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
-            markdown "${fullssext}.md" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
-            echo "</text-html>" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> ${TARGET_XML_OUT_DIR}index.xml
-        }
+      ## html converted version here
+      echo "<text-html>" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
+      markdown "${fullssext}.md" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
+      echo "</text-html>" | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> ${TARGET_XML_OUT_DIR}index.xml
+    }
 
-        echo  '<pre>' | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
+    echo  '<pre>' | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
 
-        inner-tag "$htmlizedFile" 'pre'  | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
-
-        cat>>${TARGET_XML_OUT_DIR}index.xml<<EOF
-</pre>
-</code>
-EOF
-
-        cat>>${TARGET_XML_OUT_DIR}${ficssext}.xml<<EOF
-</pre>
-</code>
-</asy-code>
-EOF
-
-        cat>>${TARGET_XML_OUT_DIR}figures.xml<<EOF
-<figure number="${numfig#1}" filename="${ficssext}" \
-asyversion="`sed 's/ \[.*\]//g' ${fullssext}.ver`" `cat "${fullssext}.format"`/>
-EOF
-
-        numfig=$[$numfig+1]
-    done
+    inner-tag "$htmlizedFile" 'pre'  | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >> "${TARGET_XML_OUT_DIR}index.xml"
 
     cat>>${TARGET_XML_OUT_DIR}index.xml<<EOF
+</pre>
+</code>
+EOF
+
+    cat>>${TARGET_XML_OUT_DIR}${ficssext}.xml<<EOF
+</pre>
+</code>
 </asy-code>
 EOF
 
     cat>>${TARGET_XML_OUT_DIR}figures.xml<<EOF
+<figure number="${numfig#1}" filename="${ficssext}" \
+asyversion="$asy_version" `cat "${fullssext}.format"`/>
+EOF
+
+    numfig=$[$numfig+1]
+  done
+
+  cat>>${TARGET_XML_OUT_DIR}index.xml<<EOF
+</asy-code>
+EOF
+
+  cat>>${TARGET_XML_OUT_DIR}figures.xml<<EOF
 </asy-figures>
 EOF
 

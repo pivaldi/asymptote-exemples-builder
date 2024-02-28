@@ -16,6 +16,8 @@ properly installed :
 - The Python syntax highlighter [Pygments](https://pygments.org/)
 - [xsltproc](http://xmlsoft.org/xslt/xsltproc.html)
 - [ImageMagick](https://imagemagick.org/index.php)
+- [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/)
+- [pdfinfo](https://www.xpdfreader.com/pdfinfo-man.html) (`apt install poppler-utils` on Debian)
 
 ## Usage
 

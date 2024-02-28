@@ -27,8 +27,10 @@ for topic in $TOPICS; do
   mkdir -p ${BUILD_DIR}/asset/{asy/${topic},script,style}
 done
 
-tree "$BUILD_DIR"
-
+echo "Build directory tree is created in $BUILD_DIR"
+type tree &> /dev/null && {
+  tree -d "$BUILD_DIR"
+}
 
 
 # Local variables:

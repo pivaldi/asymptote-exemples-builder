@@ -65,11 +65,17 @@ CONVERT_CMD=$(which convert)
 echo -n "Enter the absolute path to the convert command : "
 read_path "$CONVERT_CMD" CONVERT_CMD
 
+PYGMENTYZE_CMD=$(which pygmentize)
+echo -n "Enter the absolute path to the pygmentize command : "
+read_path "$PYGMENTYZE_CMD" PYGMENTYZE_CMD
+
+$BIN_DIR/mkdirs.sh || exit 1
 
 echo "SOURCE_DIR='$SOURCE_DIR'" > "$CONFIG_FILE"
 echo "ROOT_PROJECT_DIR='$ROOT_PROJECT_DIR'" >> "$CONFIG_FILE"
 echo "ASY_CMD='$ASY_CMD'" >> "$CONFIG_FILE"
 echo "XSLTPROC_CMD='$XSLTPROC_CMD'" >> "$CONFIG_FILE"
 echo "CONVERT_CMD='$CONVERT_CMD'" >> "$CONFIG_FILE"
+echo "PYGMENTYZE_CMD='$PYGMENTYZE_CMD'" >> "$CONFIG_FILE"
 
 echo -e "\nDone !"
