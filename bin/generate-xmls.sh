@@ -39,7 +39,7 @@ for topic in $_TOPICS; do
   echo "==> Handling topic '$topic'..."
 
   SRC_DIR="$(get-src-dir $topic)"
-  TARGET_ASSET_ASY_DIR="${ASSET_ASY_DIR}${topic}/"
+  ASSET_DIR="${ASSET_ASY_DIR}${topic}/"
   TARGET_XML_OUT_DIR="${XML_OUT_DIR}${topic}/"
   TMP_DIR="${TMP_PROJECT_DIR}${topic}/"
 
@@ -74,7 +74,7 @@ EOF
     fullssext="${SRC_DIR}${ficssext}"
 
     # le tag ADDPDF permet de mettre un lien vers le fichier .pdf
-    COMB="s%ADDPDF%<a href=\"###DIRNAME###${ficssext}.pdf\">${TARGET_ASSET_ASY_DIR}${ficssext}.pdf<\/a>%g"
+    COMB="s%ADDPDF%<a href=\"###DIRNAME###${ficssext}.pdf\">${ASSET_DIR}${ficssext}.pdf<\/a>%g"
 
     # *=========================================*
     # *..Creating .html files from .asy files...*

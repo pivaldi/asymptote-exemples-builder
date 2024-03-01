@@ -26,6 +26,9 @@ must_installed pygmentize "https://pygments.org/download/"
 must_installed asy "https://asymptote.sourceforge.io/"
 must_installed make "apt install make # For Debian like OS"
 must_installed convert "apt install imagemagick # For Debian like OS"
+must_installed identify "apt install imagemagick # For Debian like OS"
+must_installed pdftk "apt install pdftk # For Debian like OS"
+must_installed pdfinfo "apt install poppler-utils # For Debian like OS"
 
 [ -e "$CONFIG_FILE" ] && {
   echo "The file $CONFIG_FILE already exists…"
@@ -36,22 +39,7 @@ must_installed convert "apt install imagemagick # For Debian like OS"
   }
 }
 
-echo "The Asymptote examples available in the repository https://github.com/pivaldi/asymptote-exemples.git must be in your computer…"
-echo "Enter the absolute directory path where the Asymptote examples live (C-c to interrupt the configuration) : "
-
-SOURCE_DIR=
-
-[ -e "${PARENT_DIR}/asymptote-exemples" ] && SOURCE_DIR="${PARENT_DIR}/asymptote-exemples" || SOURCE_DIR="${PARENT_DIR}"
-
-read_path "$SOURCE_DIR" SOURCE_DIR
-
-[ -e "$SOURCE_DIR" ] || {
-  echo "$SOURCE_DIR does not exists. Configuration is aborted…"
-  exit 1
-}
-
-# Remove slash from the end of SOURCE_DIR
-case $SOURCE_DIR in *[!/]*/) SOURCE_DIR=${SOURCE_DIR%"${SOURCE_DIR##*[!/]}"};; esac
+git submodule update --init || exit 1
 
 ASY_CMD=$(which asy)
 echo -n "Enter the absolute path to the Asymptote command : "
@@ -69,13 +57,12 @@ PYGMENTYZE_CMD=$(which pygmentize)
 echo -n "Enter the absolute path to the pygmentize command : "
 read_path "$PYGMENTYZE_CMD" PYGMENTYZE_CMD
 
-$BIN_DIR/mkdirs.sh || exit 1
-
-echo "SOURCE_DIR='$SOURCE_DIR'" > "$CONFIG_FILE"
 echo "ROOT_PROJECT_DIR='$ROOT_PROJECT_DIR'" >> "$CONFIG_FILE"
 echo "ASY_CMD='$ASY_CMD'" >> "$CONFIG_FILE"
 echo "XSLTPROC_CMD='$XSLTPROC_CMD'" >> "$CONFIG_FILE"
 echo "CONVERT_CMD='$CONVERT_CMD'" >> "$CONFIG_FILE"
 echo "PYGMENTYZE_CMD='$PYGMENTYZE_CMD'" >> "$CONFIG_FILE"
+
+$BIN_DIR/mkdirs.sh || exit 1
 
 echo -e "\nDone !"

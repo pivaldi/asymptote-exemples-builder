@@ -11,7 +11,6 @@ This project is only for `Gnu Linux` users and need these software
 properly installed :
 
 - [Asymptote](https://asymptote.sourceforge.io/)
-- [My Asymptote Examples](https://github.com/pivaldi/asymptote-exemples)
 - [Gnu Make](https://www.gnu.org/software/make/)
 - The Python syntax highlighter [Pygments](https://pygments.org/)
 - [xsltproc](http://xmlsoft.org/xslt/xsltproc.html)
@@ -21,3 +20,4 @@ properly installed :
 
 ## Usage
 
+1. launch the command `./cofingure` and answer to the questions.

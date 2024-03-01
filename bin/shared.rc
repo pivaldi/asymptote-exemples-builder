@@ -2,7 +2,11 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-. "$SCRIPT_DIR/config.rc" || exit 1
+. "$SCRIPT_DIR/config.rc" || {
+  echo "The builder is not configured."
+  echo "Please, launch the command ./configure"
+  exit 1
+}
 
 ## Default picture output format
 EXTIMAG="png"
@@ -25,6 +29,9 @@ ROOT_PROJECT_DIR="${ROOT_PROJECT_DIR}/"
 
 TMP_PROJECT_DIR="${ROOT_PROJECT_DIR}tmp/"
 
+## Asymptote Exemples directopry
+SOURCE_DIR="${ROOT_PROJECT_DIR}src/"
+
 ## HTML export dir
 BUILD_DIR="${ROOT_PROJECT_DIR}build/"  # Doit se terminer par un '/'
 
@@ -36,7 +43,7 @@ URID="<?=get_bloginfo('url')?>" # dynamique
 XML_OUT_DIR="${BUILD_DIR}xml/"
 
 # The list of topics to handle
-TOPICS="$(cd ${SOURCE_DIR} && find -mindepth 1 -maxdepth 1 ! -path ./modules ! -path ./.git -type d -print | sed 's!^\./!!g')"
+TOPICS="$(cd ${SOURCE_DIR} && find -mindepth 1 -maxdepth 1 ! -path ./modules ! -path ./.git -type d -print | sed 's!^\./!!g' | sort -n )"
 
 # Directory, relatively from TARGET_DIR, where the asy pictures are
 ASSET_ASY_REL_DIR="asset/asy/"

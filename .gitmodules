@@ -1,0 +1,3 @@
+[submodule "asymptote-exemples"]
+	path = src
+	url = https://github.com/pivaldi/asymptote-exemples.git
