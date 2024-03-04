@@ -140,9 +140,11 @@ function createAnimation()
     echo "Fichiers auxiliaires pdf détectés."
     if [ -e  "_${1}.pdf" ]; then
       echo "Le fichier auxiliaire est déja animé."
+
       mv -f "_${1}.pdf" "${1}.pdf"
       I=$(pdfinfo -meta ${1}.pdf | grep "Pages" |sed "s/Pages: *//g")
       I=$(( 3*I/4 ))
+
       pdftk A="${1}.pdf" cat A$I output "${1}_first.pdf"
       convert_ "${1}_first.pdf" "${1}.png" && rm "${1}_first.pdf"
     else
@@ -154,8 +156,10 @@ function createAnimation()
         FIGSpdf="${FIGSpdf} _${1}${I}.pdf"
         NB=$(( NB+1 ))
       done
+
       echo "Assemblage des pdf."
       pdftk $FIGSpdf cat output $1.pdf
+
       echo "Generation du png de presentation a partir de la page ${I} du pdf."
       I=$(( 3*NB/4 ))
       convert_ "_${1}${I}.pdf" "${1}.png"
@@ -164,11 +168,14 @@ function createAnimation()
     [ -e "${1}.gif" ] && rm "${1}.gif"
   else
     if [ -e "${1}.pdf" ]; then
-      echo "Le fichier pdf de base existe et est anime"
+      echo "Le fichier pdf de base existe et est doit être animé"
+
       I=$(pdfinfo -meta ${1}.pdf | grep "Pages" |sed "s/Pages: *//g")
       I=$(( 3*I/4 ))
+
       echo "Extraction de la page ${I} du pdf."
       pdftk A="${1}.pdf" cat A$I output "${1}_first.pdf"
+
       echo "Generation du png de presentation."
       convert_ "${1}_first.pdf" "${1}.png" && rm "${1}_first.pdf"
     fi

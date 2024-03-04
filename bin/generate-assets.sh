@@ -31,7 +31,7 @@ AFFCODE=true  # par defaut chaque image est suivie du code qui la genere. (optio
 ASYOPTION="-noprc "
 
 # Load shared code
-. $(dirname $0)/shared.rc || exit 1
+. $(dirname $0)/shared.rc || die $?
 
 
 ## Le répertoire où se trouve les ressources html (.xsl, .css, favicon...)
@@ -61,6 +61,7 @@ init_build_option() {
   GENCODE=true
   ANIM=false
   ASYOPTION="-noprc"
+  DEFAULT_OUT_FILE=
 }
 
 init_build_option
@@ -72,15 +73,16 @@ convert_()
 
 ## Extrait du pdf $1 la page 3/4 du doc et la convertit en $2
 extract_pdf_page() {
-  I=$(pdfinfo -meta ${1} | grep "Pages" | sed "s/Pages: *//g")
+  I=$(pdfinfo ${1} | grep "Pages" | sed "s/Pages: *//g")
   I=$(( 3*I/4 ))
 
-  echo "Extraction de la page ${I} du pdf {$1}."
+  echo "Extraction de la page $I du pdf $1"
   page="${TMP_PROJECT_DIR}page.pdf"
-  pdftk A="${1}" cat A$I output "$page" || exit 1
+  pdftk A="$1" cat A$I output "$page" || die $?
 
-  echo "Generation du png de presentation."
-  convert_ "$page" "$2" || exit 1 && rm "$page"
+  echo "Generation du png de presentation $2"
+  convert_ "$page" "$2" || die $?
+  DEFAULT_OUT_FILE="$page"
 }
 
 ## $1 est le fichier sans extension à animer et $2 le répoertoire de destination
@@ -91,11 +93,13 @@ createAnimation()
 
   DEST_DIR="$2"
 
-  if ls _${1}*.pdf 2&>1 /dev/null ; then # Présence de fichier(s) auxiliaire(s)
+  cd "$DEST_DIR"
+
+  if ls _${1}*.pdf > /dev/null 2>&1 ; then # Présence de fichier(s) auxiliaire(s)
     echo "Fichiers auxiliaires pdf détectés…"
 
     if [ -e  "_${1}.pdf" ]; then
-      echo "Le fichier auxiliaire est déja animé."
+      echo "Un seul fichier auxiliaire détecté et il doit être déja animé."
       mv -f "_${1}.pdf" "${1}.pdf"
 
       extract_pdf_page "${1}.pdf" "${DEST_DIR}${1}.png"
@@ -110,37 +114,38 @@ createAnimation()
       done
 
       echo "Assemblage des pdf auxiliaires."
-      pdftk $FIGSpdf cat output "${DEST_DIR}$1.pdf" || exit 1
+      pdftk $FIGSpdf cat output "$1.pdf" || die $?
 
       I=$(( 3*NB/4 ))
       echo "Generation du png de presentation a partir de la page ${I} du pdf."
-      convert_ "_${1}${I}.pdf" "${DEST_DIR}${1}.png" || exit 1
+      DEFAULT_OUT_FILE="_${1}${I}.pdf"
+      convert_ "$DEFAULT_OUT_FILE" "${1}.png" || die $?
     fi
 
     find -maxdepth 1 -name "_${1}[0-9]*.eps" -o -name "_${1}[0-9]*.pdf" -exec rm {} ';'
     # [ -e "${1}.gif" ] && rm "${1}.gif"
   else
     if [ -e "${1}.pdf" ]; then
-      echo "Le fichier pdf de base existe et est animé."
+      echo "Le fichier pdf de base existe et doit être animé."
 
-      extract_pdf_page "${1}.pdf" "${DEST_DIR}${1}.png"
+      extract_pdf_page "${1}.pdf" "${1}.png"
     fi
   fi
 
   if [ -e "${1}.pdf" ]; then #Animation vectoriel
-    printf "Redecoupage de ${1}.pdf..."
+    printf "Redecoupage de ${1}.pdf…"
 
     find -maxdepth 1 -name "pg*.pdf" -exec rm {} \;
-    pdftk "${1}.pdf" burst && echo " FAIT !" || exit 1
+    pdftk "${1}.pdf" burst && echo " FAIT !" || die $?
 
-    echo "Generation du l'animation ${1}.gif"
+    printf "Generation du l'animation ${1}.gif…"
 
-    $CONVERT_CMD -delay 10 -loop 0 pg*.pdf "${DEST_DIR}${1}.gif" &> /dev/null || exit 1 && echo "FAIT."
+    $CONVERT_CMD -delay 10 -loop 0 pg*.pdf "${1}.gif" &> /dev/null || die $? && echo " FAIT !"
     rm pg*.pdf ## nettoyage après le burst
   else # Seul le gif existe
     echo "Generation du png de presentation a partir de ${1}.gif"
 
-    $CONVERT_CMD "${DEST_DIR}$1.gif" tmp.png || exit 1
+    $CONVERT_CMD "$1.gif" tmp.png || die $?
 
     NB=0
     for I in $(find -maxdepth 1 -name "tmp-*[0-9].png" | sed "s/.\/tmp-\([0-9]*\).png/\1/g" | sort -n); do
@@ -148,11 +153,11 @@ createAnimation()
     done
 
     NB=$(( 3*NB/4 ))
-    mv "tmp-${NB}.png" "${DEST_DIR}${1}.png"
+    mv "tmp-${NB}.png" "${1}.png"
     rm tmp-*.*
   fi
 
-  cat>"${DEST_DIR}$1.gif.html"<<EOF
+  cat>"$1.gif.html"<<EOF
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -170,6 +175,7 @@ createAnimation()
 </html>
 EOF
 
+  cd -
 }
 
 for topic in $TOPICS; do
@@ -181,7 +187,7 @@ for topic in $TOPICS; do
 
   for fic in $(get_asy_files "$SRC_DIR") ; do
     # cd "$ASSET_DIR}"
-    cd "$SRC_DIR" || exit 1
+    cd "$SRC_DIR" || die $?
 
     srcfic="$(basename $fic)"
     srcficssext=${srcfic%.*}
@@ -208,7 +214,8 @@ for topic in $TOPICS; do
 
     echo "format_img=\"${EXTIMAG}\" format_out=\"${EXTASYTMP}\" animation=\"${ANIM}\"" > "${destficssext}.format"
 
-    if [ "${srcficssext}.asy" -nt "${destficssext}.${EXTASYTMP}" ]; then
+    DEST_IMG="${destficssext}.${EXTIMAG}"
+    if [ "${srcficssext}.asy" -nt "$DEST_IMG" ]; then
       if $ANIM; then
         COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION -outname ${ASSET_DIR} ${srcficssext}"
       else
@@ -218,27 +225,39 @@ for topic in $TOPICS; do
       echo "Compiling ${srcfic} to ${ASSET_DIR}"
       echo "Output format is ${EXTASYTMP}"
 
-      eval "$COMM" && $ASY_CMD --version 2>&1 | sed 1q | sed 's/ \[.*\]//' > "${ASSET_DIR}${srcficssext}.ver" || exit 1
-    fi
+      eval "$COMM" && $ASY_CMD --version 2>&1 | sed 1q | sed 's/ \[.*\]//' > "${ASSET_DIR}${srcficssext}.ver" || die $?
 
-    if [ "${srcficssext}.asy" -nt "${srcficssext}.${EXTIMAG}" ]; then
       echo "Converting ${srcficssext}.${EXTASYTMP} to ${EXTIMAG}."
+
       if $ANIM; then # We are in a animation directory
         createAnimation "${srcficssext}" "$ASSET_DIR"
       else
-        convert_ "${destficssext}.${EXTASYTMP}" "${destficssext}.${EXTIMAG}" || exit 1
+        convert_ "${destficssext}.${EXTASYTMP}" "$DEST_IMG" || die $?
       fi
 
-      # Resizing picture if needed
-      InfoImg=$(identify -format "%[fx:w] %[fx:h]" "${destficssext}.${EXTIMAG}") && {
+      [ -e "$DEST_IMG" ] || {
+        echo "Image not generated : $DEST_IMG"
+        die $?
+      }
+
+      echo "Resizing picture if needed"
+      InfoImg=$(identify -format "%[fx:w] %[fx:h]" "$DEST_IMG") && {
         W=$(echo "$InfoImg" | cut -d' ' -f1)
         H=$(echo "$InfoImg" | cut -d' ' -f2)
         if [ $W -gt $MAXW ] || [ $H -gt $MAXH ]; then
-          $CONVERT_CMD "${destficssext}.${EXTASYTMP}" -resize "${MAXW}x${MAXH}" "${ASSET_DIR}tmp.${EXTIMAG}" || exit 1 && {
-              mv -f "${destficssext}.${EXTIMAG}" "${destficssext}-fs.${EXTIMAG}"
-              mv -f "${ASSET_DIR}tmp.${EXTIMAG}" "${destficssext}.${EXTIMAG}"
-              echo "${destficssext}.${EXTIMAG} resized !"
-            }
+          OUT_FILE="${destficssext}.${EXTASYTMP}"
+
+          ## Find the file that permit to generate the png
+          [ "$DEFAULT_OUT_FILE" = "" ] || OUT_FILE="$DEFAULT_OUT_FILE"
+          [ -e "$OUT_FILE" ] || OUT_FILE="$DEST_IMG"
+
+          echo "Resizing $OUT_FILE to ${MAXW}x${MAXH}"
+          TMP_F="${ASSET_DIR}tmp.${EXTIMAG}"
+          $CONVERT_CMD  -resize "${MAXW}x${MAXH}" "$OUT_FILE" "$TMP_F" && {
+              mv -f "$DEST_IMG" "${destficssext}-fs.${EXTIMAG}" || die $?
+              mv -f "$TMP_F" "$DEST_IMG" || die $?
+              echo "$DEST_IMG resized from $OUT_FILE !"
+            } || die $?
         fi
       }
     fi

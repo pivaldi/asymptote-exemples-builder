@@ -1,3 +1,6 @@
 [submodule "asymptote-exemples"]
 	path = src
 	url = https://github.com/pivaldi/asymptote-exemples.git
+[submodule "lib/ol-bash"]
+	path = bin/lib/ol-bash
+	url = https://github.com/OVYA/ol-bash.git

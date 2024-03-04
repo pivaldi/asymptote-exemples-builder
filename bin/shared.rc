@@ -8,6 +8,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
   exit 1
 }
 
+. "$SCRIPT_DIR/lib/lib.sh" || exit 1
+
 ## Default picture output format
 EXTIMAG="png"
 
