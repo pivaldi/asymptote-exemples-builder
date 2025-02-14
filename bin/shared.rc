@@ -11,7 +11,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 . "$SCRIPT_DIR/lib/lib.sh" || exit 1
 
 ## Default picture output format
-EXTIMAG="png"
+EXTIMAG="webp"
 
 # ASYOPTION="-render=8 -maxviewport=1000 -noprc -glOptions=-iconic "
 # ASY_CMD=/usr/local/asymptote/bin/asy
@@ -19,9 +19,9 @@ EXTIMAG="png"
 ASYOPTION="-noprc "
 
 [ -z $ROOT_PROJECT_DIR ] && {
-    echo 'ROOT_PROJECT_DIR environment variable is not set.'
-    echo "Use the command line 'ROOT_PROJECT_DIR=/xxx/xxx $0'"
-    exit 1
+  echo 'ROOT_PROJECT_DIR environment variable is not set.'
+  echo "Use the command line 'ROOT_PROJECT_DIR=/xxx/xxx $0'"
+  exit 1
 }
 
 ## https://stackoverflow.com/questions/1848415/remove-slash-from-the-end-of-a-variable
@@ -47,31 +47,39 @@ XML_OUT_DIR="${BUILD_DIR}xml/"
 # The list of topics to handle
 TOPICS="$(cd ${SOURCE_DIR} && find -mindepth 1 -maxdepth 1 ! -path ./modules ! -path ./.git -type d -print | sed 's!^\./!!g' | sort -n )"
 
-# Directory, relatively from TARGET_DIR, where the asy pictures are
-ASSET_ASY_REL_DIR="asset/asy/"
-ASSET_ASY_DIR="${BUILD_DIR}${ASSET_ASY_REL_DIR}"
+# Directory, where the generated asy pictures and colored codes live
+ASSET_ASY_DIR="${BUILD_DIR}asset/asy/"
 
 # Retrieve the content of the file $1
 # inside the html tags <$2> and </$2>
 function inner-tag() {
-    cat $1 | awk -v FS="^Z" "/<$2>/,/<\/$2>/" | sed "s/<\/*$2>//g"
+  cat $1 | awk -v FS="^Z" "/<$2>/,/<\/$2>/" | sed "s/<\/*$2>//g"
 }
 
 # Retrive the asy fig source files in the directory $1
 function get_asy_files()
 {
-    find "$1" -maxdepth 1 -name 'fig*\.asy' -type f -print | sort
+  find "$1" -maxdepth 1 -name 'fig*\.asy' -type f -print | sort
 }
 
-# Retrive the source asy exemple of $1 subdir
+# Synchronize asy src examples' dir to local tmp dir
+function sync-src-dir-to-tmp-dir() {
+  [ -e "${SOURCE_DIR}" ] || {
+    echo "${SOURCE_DIR} does not exist"
+    die 1
+  }
+
+  rsync -au "${SOURCE_DIR}" "${TMP_PROJECT_DIR}" || die $?
+}
+
+# Retrive the source asy exemple of $1 subdir for compilation (local tmp directory)
 function get-src-dir() {
-    # Directory of the source code to handle
-    SRC_DIR="${SOURCE_DIR}/$1/"
+  SRC_DIR="${TMP_PROJECT_DIR}$1/"
 
-    [ -e $SRC_DIR ] || {
-        echo "$SRC_DIR does not exist"
-        exit 1
-    }
+  [ -e "$SRC_DIR" ] || {
+    echo "$SRC_DIR does not exist"
+    die 1
+  }
 
-    echo $SRC_DIR
+  echo "$SRC_DIR"
 }
