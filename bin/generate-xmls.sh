@@ -66,7 +66,7 @@ EOF
   numfig=1001
 
   for fic in $(get_asy_files $SRC_DIR); do
-    echo "  => Processing asy file $fic"
+    printf "\t=> Processing asy file ${fic}\n"
 
     ficssext=${fic%.*}
     ficssext=$(basename $ficssext)
@@ -80,7 +80,7 @@ EOF
     # *..Creating .html files from .asy files...*
     # *=========================================*
     if [ "${fic}" -nt "${htmlizedFile}" ]; then
-      echo "Htmlizing ${fic}"
+      printf "\t\t-Htmlizing ${fic}\n"
       # emacsclient -q -e '(htmlize-file "'${fic}'" "'$htmlizedFile'")' > /dev/null
       LANG="fr_FR.UTF-8" $PYGMENTYZE_CMD -f html -O "inencoding=utf-8,outencoding=utf-8,bg=light" -o "$htmlizedFile" "${fic}" || exit 1
       echo "  => $htmlizedFile"
