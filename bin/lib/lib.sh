@@ -20,7 +20,6 @@
 
 declare __DOING_MSG=
 
-
 ## Abort the process if the env var with the name $1 is not defined by name expeansion
 ## Example "_must_have_value APP_ROOT_PATH" abort if $APP_ROOT_PATH is empty
 function _must_have_value() {
@@ -29,7 +28,6 @@ function _must_have_value() {
     _abort
   }
 }
-
 
 function _doing() {
   stack_push "$1"
@@ -100,20 +98,13 @@ function _do_or_die() {
   local ERROR="$?"
   local MSG=''
 
-  if option_enabled LOG_ENABLED
-  then
+  if option_enabled LOG_ENABLED; then
     MSG="\n\t -> Error are logged in the file ${LOG_FILE}."
   fi
 
   die_if_false "$ERROR" "Command '$COMMAND' failed.${MSG}" "$(caller 0)"
 
   return "$ERROR"
-
-  cmd_or_die $1 || {
-    _abort
-    exit $?
-  } | nl -bn
-  # $1 || _fail | nl -bn
 }
 
 function _do() {

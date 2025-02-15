@@ -10,6 +10,8 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 . "$SCRIPT_DIR/lib/lib.sh" || exit 1
 
+DEBUG=yes
+
 # export LANG=C.UTF-8
 # export LANG="fr_FR.UTF-8"
 
@@ -57,7 +59,7 @@ ASSET_ASY_DIR="${BUILD_DIR}asset/asy/"
 # Retrieve the content of the file $1
 # inside the html tags <$2> and </$2>
 function inner-tag() {
-  cat $1 | awk -v FS="^Z" "/<$2>/,/<\/$2>/" | sed "s/<\/*$2>//g"
+  cat "$1" | awk -v FS="^Z" "/<$2>/,/<\/$2>/" | sed "s/<\/*$2>//g"
 }
 
 # Retrive the asy fig source files in the directory $1
@@ -72,7 +74,9 @@ function sync-src-dir-to-tmp-dir() {
     die 1
   }
 
-  rsync -au "${SOURCE_DIR}" "${TMP_PROJECT_DIR}" || die $?
+  rsync -auv \
+    --exclude='.git' --exclude='/bin' --exclude='all-tag.txt' \
+    --exclude='README.md' "$SOURCE_DIR" "${TMP_PROJECT_DIR}"
 }
 
 # Retrive the source asy exemple of $1 subdir for compilation (local tmp directory)

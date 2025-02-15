@@ -16,22 +16,28 @@
 # along with this program ; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-. $(dirname $0)/shared.rc || exit 1
+. "$(dirname "$0")/shared.rc" || exit 1
+
+DIR_CREATED=false
 
 for topic in $TOPICS; do
-  [ -e ${TMP_PROJECT_DIR}${topic} ] || {
+  [ -e "${TMP_PROJECT_DIR}${topic}" ] || {
     mkdir -p "${TMP_PROJECT_DIR}${topic}" || exit 1
   }
 
-  mkdir -p ${BUILD_DIR}{xml,html,md}/${topic}
-  mkdir -p ${BUILD_DIR}/asset/{asy/${topic},script,style}
+  mkdir -p "${BUILD_DIR}{xml,html,md}/${topic}"
+  mkdir -p "${BUILD_DIR}/asset/{asy/${topic},script,style}"
+
+  DIR_CREATED=true
 done
 
-echo "Build directory tree is created in $BUILD_DIR"
-type tree &> /dev/null && {
-  tree -d "$BUILD_DIR"
+$DIR_CREATED && {
+  echo "Build directory tree was created in $BUILD_DIR"
+  sync-src-dir-to-tmp-dir
+  type tree &>/dev/null && {
+    tree -d "$BUILD_DIR"
+  }
 }
-
 
 # Local variables:
 # coding: utf-8
