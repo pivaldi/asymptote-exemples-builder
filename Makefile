@@ -9,7 +9,7 @@ current_dir := $(patsubst %/,%,$(dir $(mkfile_path)))
 generate_xml_cmd := $(current_dir)/bin/generate-xmls.sh
 
 .PHONY: all
-all: build-xmls
+all: xmls
 
 .PHONY: clean
 clean: build-clean assets-clean
@@ -24,8 +24,8 @@ build-mkdirs:
 build-clean:
 	[ -e "$(current_dir)/build" ] && rm -r "$(current_dir)/build" || true
 
-.PHONY: build-xmls
-build-xmls: build-mkdirs
+.PHONY: xmls
+xmls: build-mkdirs
 	$(generate_xml_cmd)
 
 .PHONY: assets-clean

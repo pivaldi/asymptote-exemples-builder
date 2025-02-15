@@ -195,6 +195,4 @@ $(document).ready(function(){
   <xsl:template match="html">
     <xsl:copy-of select="text()|*" />
   </xsl:template>
-
-
 </xsl:stylesheet>

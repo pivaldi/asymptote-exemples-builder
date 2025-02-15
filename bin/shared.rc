@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 . "$SCRIPT_DIR/config.rc" || {
   echo "The builder is not configured."
@@ -9,6 +9,9 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 }
 
 . "$SCRIPT_DIR/lib/lib.sh" || exit 1
+
+# export LANG=C.UTF-8
+# export LANG="fr_FR.UTF-8"
 
 ## Default picture output format
 EXTIMAG="webp"
@@ -25,7 +28,7 @@ ASYOPTION="-noprc "
 }
 
 ## https://stackoverflow.com/questions/1848415/remove-slash-from-the-end-of-a-variable
-case $ROOT_PROJECT_DIR in *[!/]*/) ROOT_PROJECT_DIR=${ROOT_PROJECT_DIR%"${ROOT_PROJECT_DIR##*[!/]}"};; esac
+case $ROOT_PROJECT_DIR in *[!/]*/) ROOT_PROJECT_DIR=${ROOT_PROJECT_DIR%"${ROOT_PROJECT_DIR##*[!/]}"} ;; esac
 
 ROOT_PROJECT_DIR="${ROOT_PROJECT_DIR}/"
 
@@ -34,18 +37,19 @@ TMP_PROJECT_DIR="${ROOT_PROJECT_DIR}tmp/"
 ## Asymptote Exemples directopry
 SOURCE_DIR="${ROOT_PROJECT_DIR}src/"
 
-## HTML export dir
-BUILD_DIR="${ROOT_PROJECT_DIR}build/"  # Doit se terminer par un '/'
+## Build export dir
+BUILD_DIR="${ROOT_PROJECT_DIR}build/" # Doit se terminer par un '/'
 
 # L'adresse du site (utile pour de rares liens dans les html statiques)
-URIS='http://www.piprime.fr/' # statique
+URIS='http://www.piprime.fr/'   # statique
 URID="<?=get_bloginfo('url')?>" # dynamique
 
 # Directory where to write the xml files
 XML_OUT_DIR="${BUILD_DIR}xml/"
+HTML_OUT_DIR="${BUILD_DIR}html/"
 
 # The list of topics to handle
-TOPICS="$(cd ${SOURCE_DIR} && find -mindepth 1 -maxdepth 1 ! -path ./modules ! -path ./.git -type d -print | sed 's!^\./!!g' | sort -n )"
+TOPICS="$(cd ${SOURCE_DIR} && find -mindepth 1 -maxdepth 1 ! -path ./modules ! -path ./.git -type d -print | sed 's!^\./!!g' | sort -n)"
 
 # Directory, where the generated asy pictures and colored codes live
 ASSET_ASY_DIR="${BUILD_DIR}asset/asy/"
@@ -57,8 +61,7 @@ function inner-tag() {
 }
 
 # Retrive the asy fig source files in the directory $1
-function get_asy_files()
-{
+function get_asy_files() {
   find "$1" -maxdepth 1 -name 'fig*\.asy' -type f -print | sort
 }
 
