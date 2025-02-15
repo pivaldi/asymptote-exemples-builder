@@ -1,5 +1,7 @@
 # The Asymptote Exemples Builder
 
+## THIS IS A WORK IN PROGRESS -- DO NOT USE THIS REPO --
+
 This project provides a set of `bash` commands to export my
 [Asymptote Examples](https://github.com/pivaldi/asymptote-exemples)
 to various format like `html`, `markdown` for
