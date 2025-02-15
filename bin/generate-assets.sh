@@ -22,10 +22,10 @@
 # *=======================================================*
 
 # Load shared code
-. $(dirname $0)/shared.rc || die $?
+. "$(dirname "$0")/shared.rc" || die $?
 
-MAXW=200                # Largeur maximale des images
-MAXH=$MAXW              # Hauteur maximale des images
+# MAXW=200                # Largeur maximale des images
+# MAXH=$MAXW              # Hauteur maximale des images
 VIEW_OPTION=" -wait -V" ## To view the generated result
 VIEW_OPTION=""
 
@@ -38,8 +38,6 @@ RESSOURCES="asset/" # Doit se terminer par un '/'
 ## HTML export dir
 HTML_EXPORT_DIR="${BUILD_DIR}/html/" # Doit se terminer par un '/'
 
-# L'adresse du site (utile pour de rares liens dans les html statiques)
-URIS='http://www.piprime.fr/' # statique
 # *=======================================================*
 # *................Fin de la configuration................*
 # *=======================================================*
@@ -50,25 +48,24 @@ REL=$(pwd | sed "s!${ROOT_PROJECT_DIR}*!/!" | sed "s![^/]*!..!g")"/"
 
 ## Le chemin relatif du repertoire racine par
 ## rapport au repertoire d'export html (il se termine par un '/').
-REL_OUT_DIR="$(pwd | sed "s!${HTML_EXPORT_DIR}!!")/"
+# REL_OUT_DIR="$(pwd | sed "s!${HTML_EXPORT_DIR}!!")/"
 
 EXTIMAG_BCK="$EXTIMAG"
 
 RES=${REL}${RESSOURCES}
 
 init_build_option() {
-  GENCODE=true
   ANIM=false
   ASYOPTION="-noprc"
   DEFAULT_OUT_FILE=
   EXTIMAG="$EXTIMAG_BCK"
-  EXTASY="$EXTIMAG_BCK" #format de sortie de asy par defaut
+  EXTASY="$EXTIMAG_BCK" # defaut output format of asy cmd
 }
 
 init_build_option
 
 convert_() {
-  $CONVERT_CMD -density 350 -quality 100 -depth 8 -strip "${1}" -resample 96 "${2}" &>/dev/null
+  $CONVERT_CMD -density 350 -quality 100 -depth 8 -strip "${1}" -resample 96 "${2}"
 }
 
 ## Extrait du pdf $1 la page 3/4 du doc et la convertit en $2
@@ -76,25 +73,25 @@ extract_pdf_page() {
   I=$(pdfinfo ${1} | grep "Pages" | sed "s/Pages: *//g")
   I=$((3 * I / 4))
 
-  echo "Extraction de la page $I du pdf $1"
+  echo "Extracting page $I from pdf $1"
   page="${TMP_PROJECT_DIR}page.pdf"
   pdftk A="$1" cat A$I output "$page" || die $?
 
-  echo "Generation du ${EXTIMAG} de presentation $2"
+  echo "Generating of ${EXTIMAG} for presentation $2"
   convert_ "$page" "$2" || die $?
   DEFAULT_OUT_FILE="$page"
 }
 
-## $1 est le fichier sans extension à animer et $2 le répoertoire de destination
-## de l'nimation
+## $1 is the file without extension to animate and $2 is the directory destination
+## of the animation.
 createAnimation() {
   echo "Generation du ${EXTIMAG} de presentation de l'animation."
 
   DEST_DIR="$2"
 
-  cd "$DEST_DIR"
+  cd "$DEST_DIR" || exit 1
 
-  if ls _${1}*.pdf >/dev/null 2>&1; then # Présence de fichier(s) auxiliaire(s)
+  if ls "_${1}*.pdf" >/dev/null 2>&1; then # Présence de fichier(s) auxiliaire(s)
     echo "Fichiers auxiliaires pdf détectés…"
 
     if [ -e "_${1}.pdf" ]; then
@@ -139,7 +136,7 @@ createAnimation() {
 
     printf "Generation du l'animation ${1}.gif…"
 
-    $CONVERT_CMD -delay 10 -loop 0 pg*.pdf "${1}.gif" &>/dev/null || die $? && echo " FAIT !"
+    $CONVERT_CMD -delay 10 -loop 0 pg*.pdf "${1}.gif" || die $? && echo " FAIT !"
     rm pg*.pdf ## nettoyage après le burst
   else         # Seul le gif existe
     echo "Generation du ${EXTIMAG} de presentation à partir de ${1}.gif"
@@ -178,7 +175,7 @@ createAnimation() {
 </html>
 EOF
 
-  cd -
+  cd - || die 1
 }
 
 sync-src-dir-to-tmp-dir || die $?
@@ -190,48 +187,35 @@ for topic in $TOPICS; do
   ASSET_DIR="${ASSET_ASY_DIR}${topic}/"
 
   for fic in $(get_asy_files "$SRC_DIR"); do
-    # cd "$ASSET_DIR}"
     cd "$SRC_DIR" || die $?
 
     srcfic="$(basename $fic)"
     srcficssext=${srcfic%.*}
-    destfic="${ASSET_DIR}$srcfic"
+    destfic="${SRC_DIR}$srcfic"
     destficssext=${destfic%.*}
 
     init_build_option
     BUILD_RC="${SRC_DIR}build.rc"
 
     [ -e "$BUILD_RC" ] && . "$BUILD_RC"
-    # *=======================================================*
-    # *..............Compilation des .asy recents.............*
-    # *=======================================================*
-    # if grep -E --quiet '(^[^/][^/].+opacity)|(^[^/][^/].+= *"pdf")' "${srcfic}"
-    # then
-    #   EXTASYTMP="pdf";
-    # else
-    #   EXTASYTMP="$EXTASY";
-    # fi
 
-    unset SKIP_BUILD
     FIG_RC="${SRC_DIR}${srcficssext}.rc"
     [ -e "$FIG_RC" ] && {
       echo "Loading $FIG_RC"
       . "$FIG_RC"
     }
-    ## TODO: On the various directory some asy codes generate temporary files
-    ## that are used to generate the final document. This does not work with the
-    ## asy compile option -outname. Fixe this…
-    [ -z "$SKIP_BUILD" ] || continue
 
     EXTASYTMP="$EXTASY"
     EXTIMAGTMP="$EXTIMAG"
 
     if $ANIM; then
-      COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION $VIEW_OPTION -outname ${ASSET_DIR} ${srcficssext}"
+      # COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION $VIEW_OPTION -outname ${ASSET_DIR} ${srcficssext}"
+      COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION $VIEW_OPTION ${srcficssext}"
       EXTASYTMP=pdf
       EXTIMAGTMP=${EXTIMAG}
     else
-      COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION -f ${EXTASYTMP} $VIEW_OPTION -outname ${ASSET_DIR} ${srcficssext}"
+      # COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION -f ${EXTASYTMP} $VIEW_OPTION -outname ${ASSET_DIR} ${srcficssext}"
+      COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION -f ${EXTASYTMP} $VIEW_OPTION ${srcficssext}"
     fi
 
     DEST_IMG="${destficssext}.${EXTIMAGTMP}"
@@ -246,7 +230,7 @@ for topic in $TOPICS; do
       echo "Converting ${srcficssext}.${EXTASYTMP} to ${EXTIMAG}."
 
       if $ANIM; then # We are in a animation directory
-        createAnimation "${srcficssext}" "$ASSET_DIR"
+        createAnimation "${srcficssext}" "$SRC_DIR"
       else
         [ "$EXTIMAGTMP" == "$EXTASYTMP" ] || {
           convert_ "${destficssext}.${EXTASYTMP}" "$DEST_IMG" || die $?
@@ -258,8 +242,10 @@ for topic in $TOPICS; do
       [ -e "$DEST_IMG" ] || {
         if [ -e "${destficssext}-0.${EXTASYTMP}" ]; then
           mv -f "${destficssext}-0.${EXTASYTMP}" "$DEST_IMG" || die $?
+          rm "${destficssext}-"*".${EXTASYTMP}"
           DEFAULT_OUT_FILE="${destficssext}.pdf[0]"
         else
+          echo convert "${destficssext}.png" "$DEST_IMG"
           convert_ "${destficssext}.png" "$DEST_IMG" || die $?
         fi
       } || {
@@ -267,34 +253,49 @@ for topic in $TOPICS; do
         die 1
       }
 
-      # echo "format_img=\"${EXTIMAGTMP}\" format_out=\"${EXTASYTMP}\" animation=\"${ANIM}\"" >"${destficssext}.format"
+      MD5_SUM=$(md5sum "$DEST_IMG" | cut -d ' ' -f 1)
 
-      [ "$EXTIMAGTMP" == 'svg' ] || {
-        echo "Resizing ${EXTIMAG} picture if needed"
-
-        InfoImg=$(identify -format "%[fx:w] %[fx:h]" "$DEST_IMG") && {
-          W=$(echo "$InfoImg" | cut -d' ' -f1)
-          H=$(echo "$InfoImg" | cut -d' ' -f2)
-          if [ $W -gt $MAXW ] || [ $H -gt $MAXH ]; then
-            OUT_FILE="${destficssext}.${EXTASYTMP}"
-
-            ## Find the file that permit to generate the ${EXTIMAG}
-            [ "$DEFAULT_OUT_FILE" = "" ] || OUT_FILE="$DEFAULT_OUT_FILE"
-            [ -e "$OUT_FILE" ] || OUT_FILE="$DEST_IMG"
-
-            echo "Resizing $OUT_FILE to ${MAXW}x${MAXH}"
-            TMP_F="${ASSET_DIR}tmp.${EXTIMAG}"
-            $CONVERT_CMD -resize "${MAXW}x${MAXH}" "$OUT_FILE" "$TMP_F" && {
-              mv -f "$DEST_IMG" "${destficssext}-fs.${EXTIMAG}" || die $?
-              mv -f "$TMP_F" "$DEST_IMG" || die $?
-              echo "$DEST_IMG resized from $OUT_FILE !"
-            } || die $?
-          fi
-        }
+      echo "md5=\"${MD5_SUM}\" format_img=\"${EXTIMAG}\" format_out=\"${EXTASYTMP}\" animation=\"${ANIM}\"" >"${ASSET_DIR}${srcficssext}.format"
+      {
+        cd "$ASSET_DIR" || exit 1
+        ln -s "$srcfic" "$M{D5_SUM}.${EXTIMAG}"
       }
+
+      # [ "$EXTIMAGTMP" == 'svg' ] || {
+      #   echo "Resizing ${EXTIMAG} picture if needed"
+
+      # InfoImg=$(identify -format "%[fx:w] %[fx:h]" "$DEST_IMG") && {
+      #   W=$(echo "$InfoImg" | cut -d' ' -f1)
+      #   H=$(echo "$InfoImg" | cut -d' ' -f2)
+      #   if [ "$W" -gt "$MAXW" ] || [ "$H" -gt "$MAXH" ]; then
+      #     OUT_FILE="${destficssext}.${EXTASYTMP}"
+
+      #     ## Find the file that permit to generate the ${EXTIMAG}
+      #     [ "$DEFAULT_OUT_FILE" = "" ] || OUT_FILE="$DEFAULT_OUT_FILE"
+      #     [ -e "$OUT_FILE" ] || OUT_FILE="$DEST_IMG"
+
+      #     echo "Resizing $OUT_FILE to ${MAXW}x${MAXH}"
+      #     TMP_F="${ASSET_DIR}tmp.${EXTIMAG}"
+      #     $CONVERT_CMD -resize "${MAXW}x${MAXH}" "$OUT_FILE" "$TMP_F" && {
+      #       mv -f "$DEST_IMG" "${destficssext}-fs.${EXTIMAG}" || die $?
+      #       mv -f "$TMP_F" "$DEST_IMG" || die $?
+      #       echo "$DEST_IMG resized from $OUT_FILE !"
+      #     } || die $?
+      #   fi
+      # }
+      # }
     fi
   done
 done
+
+echo rsync -auv \
+  --include='*.gif.html' \
+  --include='*.pdf' \
+  --include="*.$EXTIMAG" \
+  --include='*.svg' \
+  --include='*/' \
+  --exclude='*' \
+  --delete "$SRC_DIR" "$ASSET_DIR"
 
 # # *=======================================================*
 # # *................Creation de index.html.................*
