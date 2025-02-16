@@ -142,8 +142,7 @@ function createAnimation() {
       echo "Il faut assembler les pdf auxiliaires"
       FIGSpdf=""
       NB=0
-      for I in $(find -maxdepth 1 -name "_$1*[0-9].pdf" -print |
-        sed "s/.\/_$1\([0-9]*\).pdf/\1/g" | sort -n); do
+      for I in $(find -maxdepth 1 -name "_$1*[0-9].pdf" -print | sed -E "s/.\/_$1\+([0-9]+)\.pdf/\1/" | sort -n); do
         FIGSpdf="${FIGSpdf} _${1}${I}.pdf"
         NB=$((NB + 1))
       done

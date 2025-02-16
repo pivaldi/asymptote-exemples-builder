@@ -26,17 +26,10 @@
 
 # MAXW=200                # Largeur maximale des images
 # MAXH=$MAXW              # Hauteur maximale des images
-VIEW_OPTION=" -wait -V" ## To view the generated result
-VIEW_OPTION=""
-
-ASYOPTION="-noprc "
 
 ## Le répertoire où se trouve les ressources html (.xsl, .css, favicon...)
 ## Relatif à ROOT_PROJECT_DIR.
 RESSOURCES="asset/" # Doit se terminer par un '/'
-
-## HTML export dir
-HTML_EXPORT_DIR="${BUILD_DIR}/html/" # Doit se terminer par un '/'
 
 # *=======================================================*
 # *................Fin de la configuration................*
@@ -56,10 +49,12 @@ RES=${REL}${RESSOURCES}
 
 init_build_option() {
   ANIM=false
-  ASYOPTION="-noprc"
+  ASYOPTION='-noprc -tex "pdflatex"'
   DEFAULT_OUT_FILE=
   EXTIMAG="$EXTIMAG_BCK"
   EXTASY="$EXTIMAG_BCK" # defaut output format of asy cmd
+  # VIEW_OPTION=" -wait -V" ## To view the generated result
+  VIEW_OPTION=''
 }
 
 init_build_option
@@ -82,8 +77,8 @@ extract_pdf_page() {
   DEFAULT_OUT_FILE="$page"
 }
 
-## $1 is the file without extension to animate and $2 is the directory destination
-## of the animation.
+## $1 is the file without extension to animate and $2 is the directory
+## destination of the animation.
 createAnimation() {
   echo "Generation du ${EXTIMAG} de presentation de l'animation."
 
@@ -91,35 +86,35 @@ createAnimation() {
 
   cd "$DEST_DIR" || exit 1
 
-  if ls "_${1}*.pdf" >/dev/null 2>&1; then # Présence de fichier(s) auxiliaire(s)
-    echo "Fichiers auxiliaires pdf détectés…"
+  if ls _${1}*.pdf >/dev/null 2>&1; then # Présence de fichier(s) auxiliaire(s)
+    echo "Auxiliary PDF files detected"
 
     if [ -e "_${1}.pdf" ]; then
-      echo "Un seul fichier auxiliaire détecté et il doit être déja animé."
+      echo "A single auxiliary file detected… It must already be animated !"
       mv -f "_${1}.pdf" "${1}.pdf"
 
       extract_pdf_page "${1}.pdf" "${DEST_DIR}${1}.${EXTIMAG}"
     else
-      echo "Les fichiers auxiliaires ne sont pas animés."
+      echo "Auxiliary files are not animated."
       FIGSpdf=""
       NB=0
 
-      for I in $(find -maxdepth 1 -name "_$1*[0-9].pdf" -print | sed "s/.\/_$1\([0-9]*\).pdf/\1/g" | sort -n); do
-        FIGSpdf="${FIGSpdf} _${1}${I}.pdf"
+      for I in $(find -maxdepth 1 -name "_$1*[0-9].pdf" -print | sed -E "s/.\/_$1\+([0-9]+)\.pdf/\1/" | sort -n); do
+        FIGSpdf="${FIGSpdf} _${1}+${I}.pdf"
         NB=$((NB + 1))
       done
 
-      echo "Assemblage des pdf auxiliaires."
+      echo "Assembly of auxiliary PDFs."
       pdftk $FIGSpdf cat output "$1.pdf" || die $?
 
       I=$((3 * NB / 4))
-      echo "Generation du ${EXTIMAG} de presentation à partir de la page ${I} du pdf."
-      DEFAULT_OUT_FILE="_${1}${I}.pdf"
+      echo "Generating ${EXTIMAG} presentation from the page ${I} of the the pdf file…"
+      DEFAULT_OUT_FILE="_${1}+${I}.pdf"
       convert_ "$DEFAULT_OUT_FILE" "${1}.${EXTIMAG}" || die $?
     fi
 
-    find -maxdepth 1 -name "_${1}[0-9]*.eps" -o -name "_${1}[0-9]*.pdf" -exec rm {} ';'
-    # [ -e "${1}.gif" ] && rm "${1}.gif"
+    find . -maxdepth 1 '(' -name "_${1}[0-9]*.eps" -o -name ')' "_${1}[0-9]*.pdf" -exec rm {} ';'
+  # [ -e "${1}.gif" ] && rm "${1}.gif"
   else
     if [ -e "${1}.pdf" ]; then
       echo "Le fichier pdf de base existe et doit être animé."
@@ -221,32 +216,40 @@ for topic in $TOPICS; do
     DEST_IMG="${destficssext}.${EXTIMAGTMP}"
 
     if [ "${srcficssext}.asy" -nt "$DEST_IMG" ]; then
-      echo "Compiling ${srcfic} to ${ASSET_DIR}"
-      echo "Output format is ${EXTASYTMP}"
+      echo "Compiling $(pwd)/${srcfic}"
+      echo "Default output format is ${EXTASYTMP}"
       _do_or_die "$COMM" && $ASY_CMD --version 2>&1 | sed 1q | sed 's/ \[.*\]//' >"${ASSET_DIR}${srcficssext}.ver"
 
       # emacsclient "/home/pi/code/pi/asymptote/asymptote-exemples-builder/src/$topic/${srcficssext}.asy"
 
-      echo "Converting ${srcficssext}.${EXTASYTMP} to ${EXTIMAG}."
-
       if $ANIM; then # We are in a animation directory
         createAnimation "${srcficssext}" "$SRC_DIR"
       else
-        [ "$EXTIMAGTMP" == "$EXTASYTMP" ] || {
+        [ "$EXTIMAGTMP" != "$EXTASYTMP" ] && {
+          echo "Converting ${srcficssext}.${EXTASYTMP} to ${EXTIMAG}."
           convert_ "${destficssext}.${EXTASYTMP}" "$DEST_IMG" || die $?
-        } || {
-          mv "${destficssext}.${EXTASYTMP}" "$DEST_IMG" || die $?
         }
       fi
 
-      [ -e "$DEST_IMG" ] || {
+      ## We ask to asy to export to EXTIMAG but some code set the output to an other format ;
+      ## so we must handle all possible formats.
+      [ -e "$DEST_IMG" ] || { ## Animated pdf
         if [ -e "${destficssext}-0.${EXTASYTMP}" ]; then
           mv -f "${destficssext}-0.${EXTASYTMP}" "$DEST_IMG" || die $?
           rm "${destficssext}-"*".${EXTASYTMP}"
           DEFAULT_OUT_FILE="${destficssext}.pdf[0]"
-        else
-          echo convert "${destficssext}.png" "$DEST_IMG"
-          convert_ "${destficssext}.png" "$DEST_IMG" || die $?
+        else ## Force export in pdf or png in the code.
+          FOUND=false
+          for ext in pdf png; do
+            [ -e "${destficssext}.${ext}" ] && {
+              echo "converting ${destficssext}.${ext} to $DEST_IMG"
+              convert_ "${destficssext}.${ext}" "$DEST_IMG" || die $?
+              FOUND=true
+            }
+            $FOUND && continue
+          done
+
+          $FOUND ## if false go to next ||
         fi
       } || {
         echo "Image not generated : $DEST_IMG"
@@ -258,44 +261,44 @@ for topic in $TOPICS; do
       echo "md5=\"${MD5_SUM}\" format_img=\"${EXTIMAG}\" format_out=\"${EXTASYTMP}\" animation=\"${ANIM}\"" >"${ASSET_DIR}${srcficssext}.format"
       {
         cd "$ASSET_DIR" || exit 1
-        ln -s "$srcfic" "$M{D5_SUM}.${EXTIMAG}"
+        ln -s "$srcfic" "${MD5_SUM}.${EXTIMAG}"
       }
 
-      # [ "$EXTIMAGTMP" == 'svg' ] || {
-      #   echo "Resizing ${EXTIMAG} picture if needed"
+    # [ "$EXTIMAGTMP" == 'svg' ] || {
+    #   echo "Resizing ${EXTIMAG} picture if needed"
 
-      # InfoImg=$(identify -format "%[fx:w] %[fx:h]" "$DEST_IMG") && {
-      #   W=$(echo "$InfoImg" | cut -d' ' -f1)
-      #   H=$(echo "$InfoImg" | cut -d' ' -f2)
-      #   if [ "$W" -gt "$MAXW" ] || [ "$H" -gt "$MAXH" ]; then
-      #     OUT_FILE="${destficssext}.${EXTASYTMP}"
+    # InfoImg=$(identify -format "%[fx:w] %[fx:h]" "$DEST_IMG") && {
+    #   W=$(echo "$InfoImg" | cut -d' ' -f1)
+    #   H=$(echo "$InfoImg" | cut -d' ' -f2)
+    #   if [ "$W" -gt "$MAXW" ] || [ "$H" -gt "$MAXH" ]; then
+    #     OUT_FILE="${destficssext}.${EXTASYTMP}"
 
-      #     ## Find the file that permit to generate the ${EXTIMAG}
-      #     [ "$DEFAULT_OUT_FILE" = "" ] || OUT_FILE="$DEFAULT_OUT_FILE"
-      #     [ -e "$OUT_FILE" ] || OUT_FILE="$DEST_IMG"
+    #     ## Find the file that permit to generate the ${EXTIMAG}
+    #     [ "$DEFAULT_OUT_FILE" = "" ] || OUT_FILE="$DEFAULT_OUT_FILE"
+    #     [ -e "$OUT_FILE" ] || OUT_FILE="$DEST_IMG"
 
-      #     echo "Resizing $OUT_FILE to ${MAXW}x${MAXH}"
-      #     TMP_F="${ASSET_DIR}tmp.${EXTIMAG}"
-      #     $CONVERT_CMD -resize "${MAXW}x${MAXH}" "$OUT_FILE" "$TMP_F" && {
-      #       mv -f "$DEST_IMG" "${destficssext}-fs.${EXTIMAG}" || die $?
-      #       mv -f "$TMP_F" "$DEST_IMG" || die $?
-      #       echo "$DEST_IMG resized from $OUT_FILE !"
-      #     } || die $?
-      #   fi
-      # }
-      # }
+    #     echo "Resizing $OUT_FILE to ${MAXW}x${MAXH}"
+    #     TMP_F="${ASSET_DIR}tmp.${EXTIMAG}"
+    #     $CONVERT_CMD -resize "${MAXW}x${MAXH}" "$OUT_FILE" "$TMP_F" && {
+    #       mv -f "$DEST_IMG" "${destficssext}-fs.${EXTIMAG}" || die $?
+    #       mv -f "$TMP_F" "$DEST_IMG" || die $?
+    #       echo "$DEST_IMG resized from $OUT_FILE !"
+    #     } || die $?
+    #   fi
+    # }
+    # }
     fi
   done
 done
 
-echo rsync -auv \
+rsync -auv \
   --include='*.gif.html' \
   --include='*.pdf' \
   --include="*.$EXTIMAG" \
   --include='*.svg' \
   --include='*/' \
   --exclude='*' \
-  --delete "$SRC_DIR" "$ASSET_DIR"
+  --delete "$TMP_PROJECT_DIR" "$ASSET_ASY_DIR"
 
 # # *=======================================================*
 # # *................Creation de index.html.................*
