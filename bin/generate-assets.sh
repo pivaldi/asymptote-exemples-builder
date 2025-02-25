@@ -146,24 +146,6 @@ createAnimation() {
     }
   fi
 
-  cat >"$1.gif.html" <<EOF
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<link rel="shortcut icon" href="${RES}favicon.png" type="image/x-icon" />
-<meta name="author" content="Philippe Ivaldi" />
-<link href="${RES}style-asy.css" rel="stylesheet" type="text/css" />
-<title>${1}.gif</title>
-</head>
-<body>
-<center>
-<img src="$1.gif" alt="$1.gif">
-</center>
-</body>
-</html>
-EOF
-
   cd - || die 1
 }
 
@@ -256,16 +238,16 @@ for topic in $TOPICS; do
       SL="${MD5_SUM}.${EXTIMAG}"
       IMG_SYMLINK="img_symlink=\"$SL\""
 
-      PDF_FILE=""
+      PDF_FILE=''
       [ -e "${destficssext}.pdf" ] && PDF_FILE="${srcficssext}.pdf"
-      ANIM_FILE=""
-      [ -e "${destficssext}.gif.html" ] && ANIM_FILE="${srcficssext}.gif.html"
+      ANIM_FILE=''
+      [ -e "${destficssext}.gif" ] && ANIM_FILE="${srcficssext}.gif"
 
       IMG_FILE="${srcficssext}.${EXTIMAG}"
       MD5="md5=\"${MD5_SUM}\""
       IMG="img_file=\"$IMG_FILE\""
       PDF="pdf_file=\"${PDF_FILE}\""
-      ANIM="anim_file=\"${ANIM_FILE}.gif.html\""
+      ANIM="anim_file=\"${ANIM_FILE}\""
       ASY_VER="asy_version=\"$($ASY_CMD --version 2>&1 | sed 1q | sed 's/ \[.*\]//')\""
       echo "$MD5 $IMG $IMG_SYMLINK $PDF $ANIM $ASY_VER" >"${srcficssext}.buildinfo"
       [ -e "$SL" ] || ln -s "$IMG_FILE" "$SL"
