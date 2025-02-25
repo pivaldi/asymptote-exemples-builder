@@ -17,19 +17,12 @@
 # along with this program ; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-# *=======================================================*
-# *................Variables à configurer.................*
-# *=======================================================*
-
 # Load shared code
 . "$(dirname "$0")/shared.rc" || die $?
 
-# MAXW=200                # Largeur maximale des images
-# MAXH=$MAXW              # Hauteur maximale des images
-
-## Le répertoire où se trouve les ressources html (.xsl, .css, favicon...)
-## Relatif à ROOT_PROJECT_DIR.
-RESSOURCES="asset/" # Doit se terminer par un '/'
+## The directory where HTML resources are located (.xsl, .css, favicon...)
+## Relatif to ROOT_PROJECT_DIR.
+RESSOURCES="asset/" # Must be terminated with a '/'
 
 # *=======================================================*
 # *................Fin de la configuration................*
@@ -65,7 +58,7 @@ convert_() {
 
 ## Extrait du pdf $1 la page 3/4 du doc et la convertit en $2
 extract_pdf_page() {
-  I=$(pdfinfo ${1} | grep "Pages" | sed "s/Pages: *//g")
+  I=$(pdfinfo "${1}" | grep "Pages" | sed "s/Pages: *//g")
   I=$((3 * I / 4))
 
   echo "Extracting page $I from pdf $1"
@@ -86,7 +79,7 @@ createAnimation() {
 
   cd "$DEST_DIR" || exit 1
 
-  if ls _${1}*.pdf >/dev/null 2>&1; then # Présence de fichier(s) auxiliaire(s)
+  if ls "_${1}*.pdf" >/dev/null 2>&1; then # Présence de fichier(s) auxiliaire(s)
     echo "Auxiliary PDF files detected"
 
     if [ -e "_${1}.pdf" ]; then
@@ -105,6 +98,7 @@ createAnimation() {
       done
 
       echo "Assembly of auxiliary PDFs."
+      # shellcheck disable=SC2086
       pdftk $FIGSpdf cat output "$1.pdf" || die $?
 
       I=$((3 * NB / 4))
@@ -117,30 +111,30 @@ createAnimation() {
   # [ -e "${1}.gif" ] && rm "${1}.gif"
   else
     if [ -e "${1}.pdf" ]; then
-      echo "Le fichier pdf de base existe et doit être animé."
+      echo "The base pdf file exists and should be animated."
 
       extract_pdf_page "${1}.pdf" "${1}.${EXTIMAG}"
     fi
   fi
 
   if [ -e "${1}.pdf" ]; then #Animation vectoriel
-    printf "Redecoupage de %s.pdf…\n" "${1}"
+    printf "Rediscover of %s.pdf…\n" "${1}"
 
     find -maxdepth 1 -name "pg*.pdf" -exec rm {} \;
     pdftk "${1}.pdf" burst && echo " FAIT !" || die $?
 
-    printf "Generation du l'animation %s.gif…\n" "${1}"
+    printf "Generating animation %s.gif…\n" "${1}"
 
     $CONVERT_CMD -delay 10 -loop 0 pg*.pdf "${1}.gif" || die $? && echo " FAIT !"
     rm pg*.pdf ## nettoyage après le burst
   else         # Seul le gif existe
-    echo "Generation du ${EXTIMAG} de presentation à partir de ${1}.gif"
+    echo "Generating ${EXTIMAG} presentation from ${1}.gif"
 
     $CONVERT_CMD "$1.gif" tmp.${EXTIMAG} || die $?
 
     [ -e tmp.${EXTIMAG} ] && { ## Le gif génère un seul fichier (cas webp par exemple).
       mv "tmp.${EXTIMAG}" "${1}.${EXTIMAG}"
-    } || { ## Le gif génère plusieurs fichiers (cas png par exemple).
+    } || { ## the gif genrerates many files (case of png for exemple).
       NB=0
       for I in $(find -maxdepth 1 -name "tmp-*[0-9].${EXTIMAG}" | sed "s/.\/tmp-\([0-9]*\).${EXTIMAG}/\1/g" | sort -n); do
         NB=$((NB + 1))
@@ -178,13 +172,13 @@ sync-src-dir-to-tmp-dir || die $?
 for topic in $TOPICS; do
   echo "==> Handling topic '$topic'..."
 
-  SRC_DIR="$(get-src-dir $topic)"
-  ASSET_DIR="${ASSET_ASY_DIR}${topic}/"
+  SRC_DIR=$(get-src-dir "$topic")
+  # ASSET_DIR="${ASSET_ASY_DIR}${topic}/"
 
   for fic in $(get_asy_files "$SRC_DIR"); do
     cd "$SRC_DIR" || die $?
 
-    srcfic="$(basename $fic)"
+    srcfic=$(basename "$fic")
     srcficssext=${srcfic%.*}
     destfic="${SRC_DIR}$srcfic"
     destficssext=${destfic%.*}
@@ -192,10 +186,12 @@ for topic in $TOPICS; do
     init_build_option
     BUILD_RC="${SRC_DIR}build.rc"
 
+    # shellcheck source=../src/animations/build.rc
     [ -e "$BUILD_RC" ] && . "$BUILD_RC"
 
     FIG_RC="${SRC_DIR}${srcficssext}.rc"
     [ -e "$FIG_RC" ] && {
+      # shellcheck source=../src/solids/fig0120.rc
       . "$FIG_RC"
     }
 
