@@ -22,5 +22,5 @@ properly installed :
 
 ## Usage
 
-1. launch the command `./cofingure` and answer to the questions.
+1. launch the command `./configure` and answer to the questions.
 2. Launch the command `make`

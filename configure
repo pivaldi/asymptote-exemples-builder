@@ -1,8 +1,6 @@
 #!/bin/bash
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-PARENT_DIR=$( cd -- "${SCRIPT_DIR}/.." &> /dev/null && pwd )
-
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 BIN_DIR="${SCRIPT_DIR}/bin"
 
 . "${BIN_DIR}/confirm.rc" || exit 1
@@ -11,16 +9,15 @@ export ROOT_PROJECT_DIR="$SCRIPT_DIR"
 CONFIG_FILE="${BIN_DIR}/config.rc"
 
 read_path() {
-  read -e -p "" -i "$1" $2
+  read -r -e -p "" -i "$1" "$2"
 }
 
 must_installed() {
-  type $1 &> /dev/null || {
+  type "$1" &>/dev/null || {
     echo "The command '$1' is not found. Please, install it : $2"
     exit 1
   }
 }
-
 
 must_installed pygmentize "https://pygments.org/download/"
 must_installed asy "https://asymptote.sourceforge.io/"
@@ -57,12 +54,10 @@ PYGMENTYZE_CMD=$(which pygmentize)
 echo -n "Enter the absolute path to the pygmentize command : "
 read_path "$PYGMENTYZE_CMD" PYGMENTYZE_CMD
 
-echo "ROOT_PROJECT_DIR='$ROOT_PROJECT_DIR'" >> "$CONFIG_FILE"
-echo "ASY_CMD='$ASY_CMD'" >> "$CONFIG_FILE"
-echo "XSLTPROC_CMD='$XSLTPROC_CMD'" >> "$CONFIG_FILE"
-echo "CONVERT_CMD='$CONVERT_CMD'" >> "$CONFIG_FILE"
-echo "PYGMENTYZE_CMD='$PYGMENTYZE_CMD'" >> "$CONFIG_FILE"
-
-$BIN_DIR/mkdirs.sh || exit 1
+echo "ROOT_PROJECT_DIR='$ROOT_PROJECT_DIR'" >>"$CONFIG_FILE"
+echo "ASY_CMD='$ASY_CMD'" >>"$CONFIG_FILE"
+echo "XSLTPROC_CMD='$XSLTPROC_CMD'" >>"$CONFIG_FILE"
+echo "CONVERT_CMD='$CONVERT_CMD'" >>"$CONFIG_FILE"
+echo "PYGMENTYZE_CMD='$PYGMENTYZE_CMD'" >>"$CONFIG_FILE"
 
 echo -e "\nDone !"

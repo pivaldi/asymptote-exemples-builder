@@ -25,8 +25,8 @@ for topic in $TOPICS; do
     mkdir -p "${TMP_PROJECT_DIR}${topic}" || exit 1
   }
 
-  mkdir -p "${BUILD_DIR}{xml,html,md}/${topic}"
-  mkdir -p "${BUILD_DIR}/asset/{asy/${topic},script,style}"
+  mkdir -p "${BUILD_DIR}"{xml,html,md}/"${topic}"
+  mkdir -p "${BUILD_DIR}/asset/asy/"{"${topic}",script,style}
 
   DIR_CREATED=true
 done

@@ -124,12 +124,12 @@ createAnimation() {
   fi
 
   if [ -e "${1}.pdf" ]; then #Animation vectoriel
-    printf "Redecoupage de ${1}.pdf…"
+    printf "Redecoupage de %s.pdf…\n" "${1}"
 
     find -maxdepth 1 -name "pg*.pdf" -exec rm {} \;
     pdftk "${1}.pdf" burst && echo " FAIT !" || die $?
 
-    printf "Generation du l'animation ${1}.gif…"
+    printf "Generation du l'animation %s.gif…\n" "${1}"
 
     $CONVERT_CMD -delay 10 -loop 0 pg*.pdf "${1}.gif" || die $? && echo " FAIT !"
     rm pg*.pdf ## nettoyage après le burst
@@ -196,7 +196,6 @@ for topic in $TOPICS; do
 
     FIG_RC="${SRC_DIR}${srcficssext}.rc"
     [ -e "$FIG_RC" ] && {
-      echo "Loading $FIG_RC"
       . "$FIG_RC"
     }
 
@@ -218,7 +217,7 @@ for topic in $TOPICS; do
     if [ "${srcficssext}.asy" -nt "$DEST_IMG" ]; then
       echo "Compiling $(pwd)/${srcfic}"
       echo "Default output format is ${EXTASYTMP}"
-      _do_or_die "$COMM" && $ASY_CMD --version 2>&1 | sed 1q | sed 's/ \[.*\]//' >"${ASSET_DIR}${srcficssext}.ver"
+      _do_or_die "$COMM"
 
       # emacsclient "/home/pi/code/pi/asymptote/asymptote-exemples-builder/src/$topic/${srcficssext}.asy"
 
@@ -246,6 +245,7 @@ for topic in $TOPICS; do
               convert_ "${destficssext}.${ext}" "$DEST_IMG" || die $?
               FOUND=true
             }
+
             $FOUND && continue
           done
 
@@ -257,48 +257,37 @@ for topic in $TOPICS; do
       }
 
       MD5_SUM=$(md5sum "$DEST_IMG" | cut -d ' ' -f 1)
+      SL="${MD5_SUM}.${EXTIMAG}"
+      IMG_SYMLINK="img_symlink=\"$SL\""
 
-      echo "md5=\"${MD5_SUM}\" format_img=\"${EXTIMAG}\" format_out=\"${EXTASYTMP}\" animation=\"${ANIM}\"" >"${ASSET_DIR}${srcficssext}.format"
-      {
-        cd "$ASSET_DIR" || exit 1
-        ln -s "$srcfic" "${MD5_SUM}.${EXTIMAG}"
-      }
+      PDF_FILE=""
+      [ -e "${destficssext}.pdf" ] && PDF_FILE="${srcficssext}.pdf"
+      ANIM_FILE=""
+      [ -e "${destficssext}.gif.html" ] && ANIM_FILE="${srcficssext}.gif.html"
 
-    # [ "$EXTIMAGTMP" == 'svg' ] || {
-    #   echo "Resizing ${EXTIMAG} picture if needed"
-
-    # InfoImg=$(identify -format "%[fx:w] %[fx:h]" "$DEST_IMG") && {
-    #   W=$(echo "$InfoImg" | cut -d' ' -f1)
-    #   H=$(echo "$InfoImg" | cut -d' ' -f2)
-    #   if [ "$W" -gt "$MAXW" ] || [ "$H" -gt "$MAXH" ]; then
-    #     OUT_FILE="${destficssext}.${EXTASYTMP}"
-
-    #     ## Find the file that permit to generate the ${EXTIMAG}
-    #     [ "$DEFAULT_OUT_FILE" = "" ] || OUT_FILE="$DEFAULT_OUT_FILE"
-    #     [ -e "$OUT_FILE" ] || OUT_FILE="$DEST_IMG"
-
-    #     echo "Resizing $OUT_FILE to ${MAXW}x${MAXH}"
-    #     TMP_F="${ASSET_DIR}tmp.${EXTIMAG}"
-    #     $CONVERT_CMD -resize "${MAXW}x${MAXH}" "$OUT_FILE" "$TMP_F" && {
-    #       mv -f "$DEST_IMG" "${destficssext}-fs.${EXTIMAG}" || die $?
-    #       mv -f "$TMP_F" "$DEST_IMG" || die $?
-    #       echo "$DEST_IMG resized from $OUT_FILE !"
-    #     } || die $?
-    #   fi
-    # }
-    # }
+      IMG_FILE="${srcficssext}.${EXTIMAG}"
+      MD5="md5=\"${MD5_SUM}\""
+      IMG="img_file=\"$IMG_FILE\""
+      PDF="pdf_file=\"${PDF_FILE}\""
+      ANIM="anim_file=\"${ANIM_FILE}.gif.html\""
+      ASY_VER="asy_version=\"$($ASY_CMD --version 2>&1 | sed 1q | sed 's/ \[.*\]//')\""
+      echo "$MD5 $IMG $IMG_SYMLINK $PDF $ANIM $ASY_VER" >"${srcficssext}.buildinfo"
+      [ -e "$SL" ] || ln -s "$IMG_FILE" "$SL"
     fi
   done
 done
 
-rsync -auv \
+rsync -au \
+  --exclude='*+*.pdf' \
+  --exclude='*converted-to.pdf' \
   --include='*.gif.html' \
   --include='*.pdf' \
+  --include='*.buildinfo' \
   --include="*.$EXTIMAG" \
   --include='*.svg' \
   --include='*/' \
   --exclude='*' \
-  --delete "$TMP_PROJECT_DIR" "$ASSET_ASY_DIR"
+  --delete "$TMP_PROJECT_DIR" "$ASSET_ASY_DIR" && echo "DONE !"
 
 # # *=======================================================*
 # # *................Creation de index.html.................*

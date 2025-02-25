@@ -7,25 +7,30 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(patsubst %/,%,$(dir $(mkfile_path)))
 
 generate_xml_cmd := $(current_dir)/bin/generate-xmls.sh
+generate_assets_cmd := $(current_dir)/bin/generate-assets.sh
 
 .PHONY: all
-all: xmls
+all: install xmls
+
+.PHONY: install
+install:
+	./bin/install.sh
 
 .PHONY: clean
 clean: build-clean assets-clean
 	[ -e "$(current_dir)/tmp" ] && rm -r "$(current_dir)/tmp" || true
 	[ -e "$(current_dir)/bin/config.rc" ] && rm "$(current_dir)/bin/config.rc" || true
 
-.PHONY: build-mkdirs
-build-mkdirs:
-	$(current_dir)/bin/mkdirs.sh
-
 .PHONY: build-clean
 build-clean:
 	[ -e "$(current_dir)/build" ] && rm -r "$(current_dir)/build" || true
 
+.PHONY: assets
+assets:
+	$(generate_assets_cmd)
+
 .PHONY: xmls
-xmls: build-mkdirs
+xmls:
 	$(generate_xml_cmd)
 
 .PHONY: assets-clean
