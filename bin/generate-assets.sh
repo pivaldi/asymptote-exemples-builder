@@ -20,25 +20,7 @@
 # Load shared code
 . "$(dirname "$0")/shared.rc" || die $?
 
-## The directory where HTML resources are located (.xsl, .css, favicon...)
-## Relatif to ROOT_PROJECT_DIR.
-RESSOURCES="asset/" # Must be terminated with a '/'
-
-# *=======================================================*
-# *................Fin de la configuration................*
-# *=======================================================*
-
-## Le chemin relatif du repertoire ROOT_PROJECT_DIR par
-## rapport au repertoire courant (il se termine par un '/').
-REL=$(pwd | sed "s!${ROOT_PROJECT_DIR}*!/!" | sed "s![^/]*!..!g")"/"
-
-## Le chemin relatif du repertoire racine par
-## rapport au repertoire d'export html (il se termine par un '/').
-# REL_OUT_DIR="$(pwd | sed "s!${HTML_EXPORT_DIR}!!")/"
-
 EXTIMAG_BCK="$EXTIMAG"
-
-RES=${REL}${RESSOURCES}
 
 init_build_option() {
   ANIM=false
