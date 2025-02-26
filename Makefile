@@ -19,7 +19,7 @@ install:
 .PHONY: clean
 clean: build-clean assets-clean
 	[ -e "$(current_dir)/tmp" ] && rm -r "$(current_dir)/tmp" || true
-	[ -e "$(current_dir)/bin/config.rc" ] && rm "$(current_dir)/bin/config.rc" || true
+	./bin/install.sh
 
 .PHONY: build-clean
 build-clean:
