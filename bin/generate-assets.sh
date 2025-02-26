@@ -61,7 +61,7 @@ createAnimation() {
 
   cd "$DEST_DIR" || exit 1
 
-  if ls "_${1}*.pdf" >/dev/null 2>&1; then # Présence de fichier(s) auxiliaire(s)
+  if ls _"${1}"*.pdf >/dev/null 2>&1; then # Présence de fichier(s) auxiliaire(s)
     echo "Auxiliary PDF files detected"
 
     if [ -e "_${1}.pdf" ]; then
@@ -108,13 +108,13 @@ createAnimation() {
     printf "Generating animation %s.gif…\n" "${1}"
 
     $CONVERT_CMD -delay 10 -loop 0 pg*.pdf "${1}.gif" || die $? && echo " FAIT !"
-    rm pg*.pdf ## nettoyage après le burst
-  else         # Seul le gif existe
+    rm pg*.pdf ## cleaning after burst
+  else         ## only gif file exists
     echo "Generating ${EXTIMAG} presentation from ${1}.gif"
 
     $CONVERT_CMD "$1.gif" tmp.${EXTIMAG} || die $?
 
-    [ -e tmp.${EXTIMAG} ] && { ## Le gif génère un seul fichier (cas webp par exemple).
+    [ -e tmp.${EXTIMAG} ] && { ## the gif genrerates one file (case of webp for example).
       mv "tmp.${EXTIMAG}" "${1}.${EXTIMAG}"
     } || { ## the gif genrerates many files (case of png for exemple).
       NB=0
@@ -230,7 +230,7 @@ for topic in $TOPICS; do
       IMG="img_file=\"$IMG_FILE\""
       PDF="pdf_file=\"${PDF_FILE}\""
       ANIM="anim_file=\"${ANIM_FILE}\""
-      ASY_VER="asy_version=\"$($ASY_CMD --version 2>&1 | sed 1q | sed 's/ \[.*\]//')\""
+      ASY_VER="asy_version=\"$($ASY_CMD --version 2>&1 | sed 1q | awk -F ' ' '{print $3}')\""
       echo "$MD5 $IMG $IMG_SYMLINK $PDF $ANIM $ASY_VER" >"${srcficssext}.buildinfo"
       [ -e "$SL" ] || ln -s "$IMG_FILE" "$SL"
     fi
