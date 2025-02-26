@@ -38,8 +38,8 @@ for topic in $_TOPICS; do
   echo "==> Handling topic '$topic'…"
 
   SRC_DIR=$(get-src-dir "$topic")
-  ASSET_DIR="${ASSET_ASY_DIR}${topic}/"
-  TARGET_XML_OUT_DIR="${XML_OUT_DIR}${topic}/"
+  ASSET_DIR="${BUILD_ASY_DIR}${topic}/"
+  TARGET_BUILD_XML_DIR="${BUILD_XML_DIR}${topic}/"
   TMP_DIR="${TMP_PROJECT_DIR}${topic}/"
 
   # *====================================
@@ -58,7 +58,7 @@ for topic in $_TOPICS; do
 
   # -----------------------------
   # * L'index de tous les codes *
-  cat >"${TARGET_XML_OUT_DIR}index.xml" <<EOF
+  cat >"${TARGET_BUILD_XML_DIR}index.xml" <<EOF
 <?xml version="1.0" ?>
 <asy-code title="$(cat "${SRC_DIR}title.txt")" date="$(LANG=US date)">
 <presentation>$(cat "${SRC_DIR}presentation.html")</presentation>
@@ -67,7 +67,7 @@ EOF
 
   # ---------------
   # * Les figures *
-  cat >"${TARGET_XML_OUT_DIR}figures.xml" <<EOF
+  cat >"${TARGET_BUILD_XML_DIR}figures.xml" <<EOF
 <?xml version="1.0" ?>
 <asy-figures title="Pic - $(cat "${SRC_DIR}title.txt")" date="$(LANG=US date)" resource="${RES}">
 <presentation>$(cat "${SRC_DIR}presentation.html")</presentation>
@@ -139,7 +139,7 @@ EOF
     CODE_ATTRS="${CODE_ATTRS} filename=\"${ficssext}\" $(cat "${fullssext}.buildinfo") postid=\"${POSTID}\""
     # ---------------------
     # * code de la figure *
-    cat >"${TARGET_XML_OUT_DIR}${ficssext}.xml" <<EOF
+    cat >"${TARGET_BUILD_XML_DIR}${ficssext}.xml" <<EOF
 <?xml version="1.0" ?>
 <asy-code title="$(cat "${SRC_DIR}title.txt")" date="$(LANG=US date)">
 <presentation>$(iconv -f utf8 <"${SRC_DIR}presentation.html")</presentation>
@@ -159,24 +159,24 @@ EOF
       inner-tag "$htmlizedFile" 'pre'
       echo '</pre>'
       echo '</code>'
-    } | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >>"${TARGET_XML_OUT_DIR}index.xml"
+    } | tee -a "${TARGET_BUILD_XML_DIR}${ficssext}.xml" >>"${TARGET_BUILD_XML_DIR}index.xml"
 
-    cat >>"${TARGET_XML_OUT_DIR}${ficssext}.xml" <<EOF
+    cat >>"${TARGET_BUILD_XML_DIR}${ficssext}.xml" <<EOF
 </asy-code>
 EOF
 
-    cat >>"${TARGET_XML_OUT_DIR}figures.xml" <<EOF
+    cat >>"${TARGET_BUILD_XML_DIR}figures.xml" <<EOF
 <figure $CODE_ATTRS/>
 EOF
 
     numfig=$((numfig + 1))
   done
 
-  cat >>"${TARGET_XML_OUT_DIR}index.xml" <<EOF
+  cat >>"${TARGET_BUILD_XML_DIR}index.xml" <<EOF
 </asy-code>
 EOF
 
-  cat >>"${TARGET_XML_OUT_DIR}figures.xml" <<EOF
+  cat >>"${TARGET_BUILD_XML_DIR}figures.xml" <<EOF
 </asy-figures>
 EOF
 

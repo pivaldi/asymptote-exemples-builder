@@ -1,5 +1,8 @@
 #!/bin/bash
 
+## Because this script will be sourced to use common defined variables
+# shellcheck disable=SC2034
+
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 . "$SCRIPT_DIR/config.rc" || {
@@ -36,30 +39,25 @@ ROOT_PROJECT_DIR="${ROOT_PROJECT_DIR}/"
 
 TMP_PROJECT_DIR="${ROOT_PROJECT_DIR}tmp/"
 
-## Asymptote Exemples directopry
+## The source assets directory
+ASSET_DIR="${ROOT_PROJECT_DIR}asset/"
+## Asymptote Exemples directory
 SOURCE_DIR="${ROOT_PROJECT_DIR}src/"
-
 ## Build export dir
 BUILD_DIR="${ROOT_PROJECT_DIR}build/" # Doit se terminer par un '/'
-
-# L'adresse du site (utile pour de rares liens dans les html statiques)
-URIS='http://www.piprime.fr/'   # statique
-URID="<?=get_bloginfo('url')?>" # dynamique
-
-# Directory where to write the xml files
-XML_OUT_DIR="${BUILD_DIR}xml/"
-HTML_OUT_DIR="${BUILD_DIR}html/"
-
 # The list of topics to handle
-TOPICS="$(cd ${SOURCE_DIR} && find -mindepth 1 -maxdepth 1 ! -path ./modules ! -path ./.git ! -path ./bin -type d -print | sed 's!^\./!!g' | sort -n)"
-
+TOPICS=$(cd "${SOURCE_DIR}" && find -mindepth 1 -maxdepth 1 ! -path ./modules ! -path ./.git ! -path ./bin -type d -print | sed 's!^\./!!g' | sort -n)
+# Directory where to write the xml files
+BUILD_XML_DIR="${BUILD_DIR}xml/"
+# Directory where to write the html files
+BUILD_HTML_DIR="${BUILD_DIR}html/"
 # Directory, where the generated asy pictures and colored codes live
-ASSET_ASY_DIR="${BUILD_DIR}asset/asy/"
+BUILD_ASY_DIR="${BUILD_DIR}asy/"
 
 # Retrieve the content of the file $1
 # inside the html tags <$2> and </$2>
 function inner-tag() {
-  cat "$1" | awk -v FS="^Z" "/<$2>/,/<\/$2>/" | sed "s/<\/*$2>//g"
+  awk -v FS="^Z" "/<$2>/,/<\/$2>/" <"$1" | sed "s/<\/*$2>//g"
 }
 
 # Retrive the asy fig source files in the directory $1

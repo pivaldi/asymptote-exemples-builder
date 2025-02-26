@@ -5,16 +5,17 @@
   <xsl:template match="/asy-code">
     <html>
       <head>
-        <link rel="shortcut icon" href="{@resource}favicon.png" type="image/x-icon" />
+        <link rel="shortcut icon" href="../favicon.png" type="image/x-icon" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="keywords" content="asymptote,latex,graphique,graphic,scientifique,scientific,logiciel,software" />
         <meta name="description" content="asymptote latex graphique graphic scientifique scientific logiciel software" />
         <meta name="author" content="Philippe Ivaldi" />
         <meta name="generator" content="Emacs" />
-        <link href="{@resource}css/style-asy.css" rel="stylesheet" type="text/css" />
-        <script type="text/javascript" src="{@resource}/piprim.js"></script>
-       <script type="text/javascript" src="{@resource}js/jquery.js"></script>
-       <script type="text/javascript" src="{@resource}js/jquery.fancybox/jquery.fancybox-1.2.1.pack.js"></script>
+        <link href="../css/style-asy.css" rel="stylesheet" type="text/css" />
+        <link href="../css/style-pygmentize-zenburn.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="../js/pi.js"></script>
+       <script type="text/javascript" src="../js/jquery.js"></script>
+       <script type="text/javascript" src="../js/jquery.fancybox/jquery.fancybox-1.2.1.pack.js"></script>
        <script type="text/javascript">
 $(document).ready(function(){
     // $("pre").slideUp();
@@ -41,7 +42,7 @@ $(document).ready(function(){
     });
   });
        </script>
-       <link rel="stylesheet" href="{@resource}js/jquery.fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+       <link rel="stylesheet" href="../js/jquery.fancybox/jquery.fancybox.css" type="text/css" media="screen" />
         <title><xsl:value-of select="@title" /></title>
       </head>
       <body>
@@ -54,13 +55,10 @@ $(document).ready(function(){
           <xsl:call-template name="menu"></xsl:call-template>
           <p class="last-modif">
             Dernière modification/Last modified: <xsl:value-of select="@date" />
-            <br /><a href="http://sourceforge.net/users/pivaldi/">Philippe Ivaldi</a>
+            <br /><a href="https://www.piprime.fr">Philippe Ivaldi</a>
           </p>
           <!-- </div> -->
           <!-- </div> -->
-          <p>
-            <a href="http://validator.w3.org/check?uri=referer">Valide XHTML</a>
-          </p>
         </div>
       </body>
     </html>
@@ -79,7 +77,7 @@ $(document).ready(function(){
           <div class="overflow">
             <xsl:for-each select="/asy-code/code">
               <a href="#fig{@number}">
-                <img class="menu" src="{@filename}.{@format_img}" alt="Figure {@number}"/>
+                <img class="menu" src="{@img_symlink}" alt="Figure {@number}"/>
               </a><br/>figure <xsl:value-of select="@number"/><br/>
             </xsl:for-each>
           </div>
@@ -100,21 +98,11 @@ $(document).ready(function(){
         <tr>
           <td>
             <xsl:choose>
-              <xsl:when test="@animation='true'">
-                <xsl:if test="@smallImg='true'">
-                  <a id="fig{@id}"  target="_blank" href="{@filename}.gif"><img class="imgborder" src="{@filename}r.{@format_img}" alt="Figure {@number}" title="Click to animate" /></a>
-                </xsl:if>
-                <xsl:if test="@smallImg='false'">
-                  <a id="fig{@id}"  target="_blank" href="{@filename}.gif"><img class="imgborder" src="{@filename}.{@format_img}" alt="Figure {@number}" title="Click to animate" /></a>
-                </xsl:if>
+              <xsl:when test="not(@animation='')">
+                <a id="fig{@id}"  target="_blank" href="{@anim_file}"><img class="imgborder" src="{@img_symlink}" alt="Figure {@number}" title="Click to animate" /></a>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:if test="@smallImg='true'">
-                  <a id="fig{@id}" target="_blank" href="{@filename}.{@format_img}"><img class="imgborder" src="{@filename}r.{@format_img}" alt="Figure {@number}" title="Click to enlarge" /></a>
-                </xsl:if>
-                <xsl:if test="@smallImg='false'">
-                  <img class="imgborder" src="{@filename}.{@format_img}" alt="Figure {@number}" title="Click to enlarge" />
-                </xsl:if>
+                <img class="imgborder" src="{@img_symlink}" alt="Figure {@number}" title="Click to enlarge" />
                 <br />
               </xsl:otherwise>
             </xsl:choose>
@@ -125,16 +113,11 @@ $(document).ready(function(){
           <td align="center"><span class="legend">
             <xsl:text>Figure </xsl:text><xsl:value-of select="@number" /><xsl:text>: </xsl:text>
             <a href="{@filename}.asy"><xsl:value-of select="@filename" />.asy</a><br/>
-            <xsl:text>(Compiled with </xsl:text><xsl:value-of select="@asyversion" /><xsl:text>)</xsl:text>
+            <xsl:text>(Compiled with Asymptote </xsl:text><xsl:value-of select="@asy_version" /><xsl:text>)</xsl:text>
           </span>
         </td><td></td></tr>
       </table>
       <div>
-        <xsl:choose>
-          <xsl:when test="@width != 'none' and @animation='true'">
-            <a href="javascript:pop('{@filename}.swf.html','{@filename}-anim',{@width},{@height});">Movie flash (swf)</a><br/>
-          </xsl:when>
-        </xsl:choose>
         <xsl:apply-templates select="link"/>
       </div>
       <div>
@@ -144,7 +127,6 @@ $(document).ready(function(){
       <div class="code asy">
         <pre id="pre{@id}"><xsl:apply-templates select="pre"/></pre></div>
       </div>
-      <xsl:if test="@smallImg='true'"><script type="text/javascript"><xsl:text>$(document).ready(function(){$("a#fig</xsl:text><xsl:value-of select="@id" /><xsl:text>").fancybox();});</xsl:text></script></xsl:if>
   </xsl:template>
 
   <xsl:template match="pre"><xsl:apply-templates /></xsl:template>
@@ -166,7 +148,7 @@ $(document).ready(function(){
 
   <xsl:template name="menu">
     <div class="menuhf">
-      <span><a href="javascript:history.back();">Back</a></span>
+      <span><a href="../index.html">Up</a></span>
       <span><a href="http://www.piprime.fr">Home</a></span>
       <span><a href="http://asymptote.sourceforge.net/">Official Asymptote WEB Site</a></span>
     </div>

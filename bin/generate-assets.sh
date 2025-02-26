@@ -137,7 +137,6 @@ for topic in $TOPICS; do
   echo "==> Handling topic '$topic'..."
 
   SRC_DIR=$(get-src-dir "$topic")
-  # ASSET_DIR="${ASSET_ASY_DIR}${topic}/"
 
   for fic in $(get_asy_files "$SRC_DIR"); do
     cd "$SRC_DIR" || die $?
@@ -163,12 +162,10 @@ for topic in $TOPICS; do
     EXTIMAGTMP="$EXTIMAG"
 
     if $ANIM; then
-      # COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION $VIEW_OPTION -outname ${ASSET_DIR} ${srcficssext}"
       COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION $VIEW_OPTION ${srcficssext}"
       EXTASYTMP=pdf
       EXTIMAGTMP=${EXTIMAG}
     else
-      # COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION -f ${EXTASYTMP} $VIEW_OPTION -outname ${ASSET_DIR} ${srcficssext}"
       COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION -f ${EXTASYTMP} $VIEW_OPTION ${srcficssext}"
     fi
 
@@ -240,14 +237,16 @@ done
 rsync -au \
   --exclude='*+*.pdf' \
   --exclude='*converted-to.pdf' \
-  --include='*.gif.html' \
+  --include='*.gif' \
   --include='*.pdf' \
   --include='*.buildinfo' \
   --include="*.$EXTIMAG" \
   --include='*.svg' \
   --include='*/' \
   --exclude='*' \
-  --delete "$TMP_PROJECT_DIR" "$ASSET_ASY_DIR" && echo "DONE !"
+  --delete "$TMP_PROJECT_DIR" "$BUILD_ASY_DIR" || exit 1
+
+echo "DONE !"
 
 # # *=======================================================*
 # # *................Creation de index.html.................*
