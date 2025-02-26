@@ -83,8 +83,28 @@ EOF
       # Modifying the html
       sed -i -e "$COMB;$COMC;$COMD" "$htmlizedFile" || exit 1
     fi
-
     #################################################
+
+    # *==============================
+    # *..Building xml part of tags..*
+    # *==============================
+    TAGS="<tags>"
+    tagFile="${fullssext}.tag"
+    [ -e "$tagFile" ] && {
+      while IFS= read -r TAG; do
+        ltag=$(
+          echo "$TAG" | awk -F '|' '{print $3}' |
+            awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2' |
+            tr ' /' '__'
+        )
+
+        idtag=$(echo "$TAG" | awk -F '|' '{print $2}')
+        TAGS="${TAGS}\n<tag id=\"${idtag}\">${ltag}</tag>"
+      done <"${tagFile}"
+    }
+
+    TAGS="${TAGS}\n</tags>"
+    # *==============================
 
     ## Creating unique key for code anchor
     [ ! -e "${fullssext}.id" ] && {
@@ -94,52 +114,38 @@ EOF
     ## The post id (useful for CMS).
     POSTID=$(cat "${fullssext}.id")
 
+    echo >"${ROOT_PROJECT_DIR}/buildinfo-missing.txt"
     [ -e "${fullssext}.buildinfo" ] || {
-      echo "${fullssext}.buildinfo" >"${ROOT_PROJECT_DIR}/buildinfo-missing.txt"
+      echo "${fullssext}.buildinfo" >>"${ROOT_PROJECT_DIR}/buildinfo-missing.txt"
     }
 
-    CODE_ATTRS="id=\"$(cat "${fullssext}.id")\" \
-      number=\"${numfig#1}\" filename=\"${ficssext}\" \
-      $(cat "${fullssext}.buildinfo") postid=\"${POSTID}\""
+    CODE_ATTRS="id=\"$(cat "${fullssext}.id")\" number=\"${numfig#1}\""
+    CODE_ATTRS="${CODE_ATTRS} filename=\"${ficssext}\" $(cat "${fullssext}.buildinfo") postid=\"${POSTID}\""
     # ---------------------
     # * code de la figure *
     cat >"${TARGET_XML_OUT_DIR}${ficssext}.xml" <<EOF
 <?xml version="1.0" ?>
 <asy-code title="$(cat "${SRC_DIR}title.txt")" date="$(LANG=US date)">
 <presentation>$(iconv -f utf8 <"${SRC_DIR}presentation.html")</presentation>
-<code $CODE_ATTRS>
 EOF
 
-    cat >>"${TARGET_XML_OUT_DIR}index.xml" <<EOF
-<code $CODE_ATTRS>
-EOF
-
-    # Add eventual text present in figxxx.md
-    [ -e "${fullssext}.md" ] && {
-      ## md version here
-      {
-        echo "<text-md>"
-        cat "${fullssext}.md"
-        echo "</text-md>"
-        echo "<text-html>"
-        markdown "${fullssext}.md"
-        echo "</text-html>"
-      } | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >>"${TARGET_XML_OUT_DIR}index.xml"
-    }
-
+    ## md version here
     {
+      echo -e "$TAGS"
+      echo "<code $CODE_ATTRS>"
+      echo "<text-md>"
+      [ -e "${fullssext}.md" ] && cat "${fullssext}.md"
+      echo "</text-md>"
+      echo "<text-html>"
+      [ -e "${fullssext}.md" ] && markdown "${fullssext}.md"
+      echo "</text-html>"
       echo '<pre>'
       inner-tag "$htmlizedFile" 'pre'
+      echo '</pre>'
+      echo '</code>'
     } | tee -a "${TARGET_XML_OUT_DIR}${ficssext}.xml" >>"${TARGET_XML_OUT_DIR}index.xml"
 
-    cat >>"${TARGET_XML_OUT_DIR}index.xml" <<EOF
-</pre>
-</code>
-EOF
-
     cat >>"${TARGET_XML_OUT_DIR}${ficssext}.xml" <<EOF
-</pre>
-</code>
 </asy-code>
 EOF
 
