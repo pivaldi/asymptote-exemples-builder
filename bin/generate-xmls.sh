@@ -42,12 +42,27 @@ for topic in $_TOPICS; do
   TARGET_XML_OUT_DIR="${XML_OUT_DIR}${topic}/"
   TMP_DIR="${TMP_PROJECT_DIR}${topic}/"
 
+  # *====================================
+  # *..Building xml part of categories..*
+  # *====================================
+  CATS="<categories>"
+  catFile="${SRC_DIR}category.txt"
+  [ -e "$catFile" ] && {
+    while IFS= read -r CAT; do
+      CATS="${CATS}\n<category>${CAT}</category>"
+    done <"${catFile}"
+  }
+
+  CATS="${CATS}\n</categories>"
+  # *==============================
+
   # -----------------------------
   # * L'index de tous les codes *
   cat >"${TARGET_XML_OUT_DIR}index.xml" <<EOF
 <?xml version="1.0" ?>
 <asy-code title="$(cat "${SRC_DIR}title.txt")" date="$(LANG=US date)">
 <presentation>$(cat "${SRC_DIR}presentation.html")</presentation>
+$(echo -e "$CATS")
 EOF
 
   # ---------------
@@ -56,6 +71,7 @@ EOF
 <?xml version="1.0" ?>
 <asy-figures title="Pic - $(cat "${SRC_DIR}title.txt")" date="$(LANG=US date)" resource="${RES}">
 <presentation>$(cat "${SRC_DIR}presentation.html")</presentation>
+$(echo -e "$CATS")
 EOF
 
   numfig=1001
@@ -127,12 +143,12 @@ EOF
 <?xml version="1.0" ?>
 <asy-code title="$(cat "${SRC_DIR}title.txt")" date="$(LANG=US date)">
 <presentation>$(iconv -f utf8 <"${SRC_DIR}presentation.html")</presentation>
+$(echo -e "$CATS")
 EOF
 
-    ## md version here
     {
-      echo -e "$TAGS"
       echo "<code $CODE_ATTRS>"
+      echo -e "$TAGS"
       echo "<text-md>"
       [ -e "${fullssext}.md" ] && cat "${fullssext}.md"
       echo "</text-md>"
