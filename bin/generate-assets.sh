@@ -217,7 +217,7 @@ for topic in animations; do
         die 1
       }
 
-      MD5_SUM=$(md5sum "$DEST_IMG" | cut -d ' ' -f 1)
+      MD5_SUM=$(md5sum "${srcficssext}.asy" | cut -d ' ' -f 1)
 
       HAS_PDF='false'
       [ -e "${destficssext}.pdf" ] && HAS_PDF="true"

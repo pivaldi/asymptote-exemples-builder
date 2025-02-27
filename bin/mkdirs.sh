@@ -34,9 +34,6 @@ done
 $DIR_CREATED && {
   echo "Build directory tree was created in $BUILD_DIR"
   sync-src-dir-to-tmp-dir
-  type tree &>/dev/null && {
-    tree -d "$BUILD_DIR"
-  }
 }
 
 # Local variables:

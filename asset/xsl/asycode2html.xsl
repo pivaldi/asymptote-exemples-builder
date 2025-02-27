@@ -77,7 +77,7 @@
         <div class="overflow">
           <xsl:for-each select="/asy-code/code">
             <a href="#fig{@number}">
-              <img class="menu" src="{@img_symlink}" alt="Figure {@number}"/>
+              <img class="menu" src="{@md5}.{@img_ext}" alt="Figure {@number}"/>
               </a><br/>figure <xsl:value-of select="@number"/><br/>
           </xsl:for-each>
         </div>
