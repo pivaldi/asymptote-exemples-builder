@@ -2,7 +2,7 @@
 
 ## THIS IS A WORK IN PROGRESS -- DO NOT USE THIS REPO --
 
-This project provides a set of `bash` commands to export my
+This project provides a set of `bash` commands to export the
 [Asymptote Examples](https://github.com/pivaldi/asymptote-exemples)
 to various format like `html`, `markdown` for
 [The Hexo Blog Framework](https://hexo.io/docs/) and pdf.
@@ -19,8 +19,10 @@ properly installed :
 - [ImageMagick](https://imagemagick.org/index.php)
 - [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/)
 - [pdfinfo](https://www.xpdfreader.com/pdfinfo-man.html) (`apt install poppler-utils` on Debian)
+- [FFmpeg](https://www.ffmpeg.org/) (`apt install ffmpeg` on Debian)
 
 ## Usage
 
 1. launch the command `./configure` and answer to the questions.
-2. Launch the command `make`
+2. Launch the command `make`.
+3. See the index page of the project launching the command `$BROWSER build/html/index.html`.

@@ -27,7 +27,7 @@ init_build_option() {
   ASYOPTION='-noprc -tex "pdflatex"'
   DEFAULT_OUT_FILE=
   EXTIMAG="$EXTIMAG_BCK"
-  EXTASY="$EXTIMAG_BCK" # defaut output format of asy cmd
+  EXTASY="$EXTIMAG" # defaut output format of asy cmd
   # VIEW_OPTION=" -wait -V" ## To view the generated result
   VIEW_OPTION=''
 }
@@ -90,24 +90,23 @@ createAnimation() {
     fi
 
     find . -maxdepth 1 '(' -name "_${1}[0-9]*.eps" -o -name ')' "_${1}[0-9]*.pdf" -exec rm {} ';'
-  # [ -e "${1}.gif" ] && rm "${1}.gif"
   else
-    if [ -e "${1}.pdf" ]; then
+    if [ -e "${1}.pdf" ] && [ "${1}.asy" -nt "${1}.gif" ]; then
       echo "The base pdf file exists and should be animated."
 
       extract_pdf_page "${1}.pdf" "${1}.${EXTIMAG}"
     fi
   fi
 
-  if [ -e "${1}.pdf" ]; then #Animation vectoriel
+  if [ -e "${1}.pdf" ] && [ "${1}.asy" -nt "${1}.gif" ]; then #Animation vectoriel
     printf "Rediscover of %s.pdf…\n" "${1}"
 
     find -maxdepth 1 -name "pg*.pdf" -exec rm {} \;
-    pdftk "${1}.pdf" burst && echo " FAIT !" || die $?
+    pdftk "${1}.pdf" burst && echo " DONE !" || die $?
 
     printf "Generating animation %s.gif…\n" "${1}"
 
-    $CONVERT_CMD -delay 10 -loop 0 pg*.pdf "${1}.gif" || die $? && echo " FAIT !"
+    $CONVERT_CMD -delay 10 -loop 0 pg*.pdf "${1}.gif" || die $? && echo " DONE !"
     rm pg*.pdf ## cleaning after burst
   else         ## only gif file exists
     echo "Generating ${EXTIMAG} presentation from ${1}.gif"
@@ -128,12 +127,17 @@ createAnimation() {
     }
   fi
 
+  [ "${1}.gif" -nt "${1}.mp4" ] && {
+    ffmpeg -y -i "${1}.gif" -movflags faststart -pix_fmt yuv420p -crf 0 -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" "${1}.mp4" || exit 1
+  }
+
   cd - || die 1
 }
 
 sync-src-dir-to-tmp-dir || die $?
 
-for topic in $TOPICS; do
+# for topic in $TOPICS; do
+for topic in animations; do
   echo "==> Handling topic '$topic'..."
 
   SRC_DIR=$(get-src-dir "$topic")
@@ -214,22 +218,28 @@ for topic in $TOPICS; do
       }
 
       MD5_SUM=$(md5sum "$DEST_IMG" | cut -d ' ' -f 1)
-      SL="${MD5_SUM}.${EXTIMAG}"
-      IMG_SYMLINK="img_symlink=\"$SL\""
 
-      PDF_FILE=''
-      [ -e "${destficssext}.pdf" ] && PDF_FILE="${srcficssext}.pdf"
-      ANIM_FILE=''
-      [ -e "${destficssext}.gif" ] && ANIM_FILE="${srcficssext}.gif"
+      HAS_PDF='false'
+      [ -e "${destficssext}.pdf" ] && HAS_PDF="true"
+      IS_ANIM='false'
+      [ -e "${destficssext}.gif" ] && IS_ANIM="true"
 
-      IMG_FILE="${srcficssext}.${EXTIMAG}"
       MD5="md5=\"${MD5_SUM}\""
-      IMG="img_file=\"$IMG_FILE\""
-      PDF="pdf_file=\"${PDF_FILE}\""
-      ANIM="anim_file=\"${ANIM_FILE}\""
+      IMG_EXT="img_ext=\"${EXTIMAG}\""
+      TOPIC="topic=\"${topic}\""
+      FILENAME="filename=\"${srcficssext}\""
+      PDF="has_pdf=\"${HAS_PDF}\""
+      ANIM="is_anim=\"${IS_ANIM}\""
       ASY_VER="asy_version=\"$($ASY_CMD --version 2>&1 | sed 1q | awk -F ' ' '{print $3}')\""
-      echo "$MD5 $IMG $IMG_SYMLINK $PDF $ANIM $ASY_VER" >"${srcficssext}.buildinfo"
-      [ -e "$SL" ] || ln -s "$IMG_FILE" "$SL"
+      echo "$FILENAME $MD5 $IMG_EXT $TOPIC $PDF $ANIM $ASY_VER" >"${srcficssext}.buildinfo"
+
+      ## Creating symlink to all needed media
+      [ ! -e "${MD5_SUM}.${EXTIMAG}" ] && ln -s "${srcficssext}.${EXTIMAG}" "${MD5_SUM}.${EXTIMAG}"
+      "${IS_ANIM}" && {
+        [ ! -e "${MD5_SUM}.gif" ] && ln -s "${srcficssext}.gif" "${MD5_SUM}.gif"
+        [ ! -e "${MD5_SUM}.mp4" ] && ln -s "${srcficssext}.mp4" "${MD5_SUM}.mp4"
+      }
+      [ ! -e "${MD5_SUM}.pdf" ] && "${HAS_PDF}" && ln -s "${srcficssext}.pdf" "${MD5_SUM}.pdf"
     fi
   done
 done
@@ -238,6 +248,7 @@ rsync -au \
   --exclude='*+*.pdf' \
   --exclude='*converted-to.pdf' \
   --include='*.gif' \
+  --include='*.mp4' \
   --include='*.pdf' \
   --include='*.buildinfo' \
   --include="*.$EXTIMAG" \

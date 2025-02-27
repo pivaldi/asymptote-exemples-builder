@@ -14,35 +14,35 @@
         <link href="../css/style-asy.css" rel="stylesheet" type="text/css" />
         <link href="../css/style-pygmentize-zenburn.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript" src="../js/pi.js"></script>
-       <script type="text/javascript" src="../js/jquery.js"></script>
-       <script type="text/javascript" src="../js/jquery.fancybox/jquery.fancybox-1.2.1.pack.js"></script>
-       <script type="text/javascript">
-$(document).ready(function(){
-    // $("pre").slideUp();
-  $("input.hsa").click(function () {
-      if ($("pre:first").is(":hidden")) {
-        $("pre").show("slow");
-        $("input.hsa").attr({value:"Hide All Codes"});
-        $("input.hst").attr({value:"Hide Code"});
-      } else {
-        $("pre").slideUp();
-        $("input.hsa").attr({value:"Show All Codes"});
-        $("input.hst").attr({value:"Show Code"});
-      }
-    });
-  $("input.hst").click(function () {
-      var tid=$(this).attr("name");
-      if ($("pre#pre"+tid).is(":hidden")) {
-        $("pre#pre"+tid).show("slow");
-        $("input#btn"+tid).attr({value:"Hide Code"});
-      } else {
-        $("pre#pre"+tid).slideUp();
-        $("input#btn"+tid).attr({value:"Show Code"});
-      }
-    });
-  });
-       </script>
-       <link rel="stylesheet" href="../js/jquery.fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+        <script type="text/javascript" src="../js/jquery.js"></script>
+        <script type="text/javascript" src="../js/jquery.fancybox/jquery.fancybox-1.2.1.pack.js"></script>
+        <script type="text/javascript">
+          $(document).ready(function(){
+          // $("pre").slideUp();
+          $("input.hsa").click(function () {
+          if ($("pre:first").is(":hidden")) {
+          $("pre").show("slow");
+          $("input.hsa").attr({value:"Hide All Codes"});
+          $("input.hst").attr({value:"Hide Code"});
+          } else {
+          $("pre").slideUp();
+          $("input.hsa").attr({value:"Show All Codes"});
+          $("input.hst").attr({value:"Show Code"});
+          }
+          });
+          $("input.hst").click(function () {
+          var tid=$(this).attr("name");
+          if ($("pre#pre"+tid).is(":hidden")) {
+          $("pre#pre"+tid).show("slow");
+          $("input#btn"+tid).attr({value:"Hide Code"});
+          } else {
+          $("pre#pre"+tid).slideUp();
+          $("input#btn"+tid).attr({value:"Show Code"});
+          }
+          });
+          });
+        </script>
+        <link rel="stylesheet" href="../js/jquery.fancybox/jquery.fancybox.css" type="text/css" media="screen" />
         <title><xsl:value-of select="@title" /></title>
       </head>
       <body>
@@ -71,19 +71,19 @@ $(document).ready(function(){
   <xsl:template name="menu-img">
     <!-- <xsl:variable name="codenumber" select="/asy-code/code" /> -->
     <!-- <xsl:if test="count($codenumber)>10"> -->
-      <div class="fixedr">
-        <div class="dynamic">
-          <a href="figure-index.html">List of pictures</a>
-          <div class="overflow">
-            <xsl:for-each select="/asy-code/code">
-              <a href="#fig{@number}">
-                <img class="menu" src="{@img_symlink}" alt="Figure {@number}"/>
+    <div class="fixedr">
+      <div class="dynamic">
+        <a href="figure-index.html">List of pictures</a>
+        <div class="overflow">
+          <xsl:for-each select="/asy-code/code">
+            <a href="#fig{@number}">
+              <img class="menu" src="{@img_symlink}" alt="Figure {@number}"/>
               </a><br/>figure <xsl:value-of select="@number"/><br/>
-            </xsl:for-each>
-          </div>
+          </xsl:for-each>
         </div>
       </div>
-      <!-- </xsl:if> -->
+    </div>
+    <!-- </xsl:if> -->
   </xsl:template>
 
 
@@ -98,11 +98,15 @@ $(document).ready(function(){
         <tr>
           <td>
             <xsl:choose>
-              <xsl:when test="not(@animation='')">
-                <a id="fig{@id}"  target="_blank" href="{@anim_file}"><img class="imgborder" src="{@img_symlink}" alt="Figure {@number}" title="Click to animate" /></a>
+              <xsl:when test="@is_anim='true'">
+                <video id="fig{@id}" loop="true" muted="true" controls="true">
+                  <source src="{@md5}.mp4" type="video/mp4" />
+                  Your browser does not support HTML5 video…
+                  <a src="{@md5}.gif">See the video as animated gif</a>.
+                </video>
               </xsl:when>
               <xsl:otherwise>
-                <img class="imgborder" src="{@img_symlink}" alt="Figure {@number}" title="Click to enlarge" />
+                <img class="imgborder" src="{@md5}.{@img_ext}" alt="Figure {@topic} {@number}"/>
                 <br />
               </xsl:otherwise>
             </xsl:choose>
@@ -112,9 +116,11 @@ $(document).ready(function(){
         <tr>
           <td align="center"><span class="legend">
             <xsl:text>Figure </xsl:text><xsl:value-of select="@number" /><xsl:text>: </xsl:text>
-            <a href="{@filename}.asy"><xsl:value-of select="@filename" />.asy</a><br/>
-            <xsl:text>(Compiled with Asymptote </xsl:text><xsl:value-of select="@asy_version" /><xsl:text>)</xsl:text>
-          </span>
+            <a href="https://github.com/pivaldi/asymptote-exemples/blob/master/{@topic}/{@filename}.asy">
+              Show <xsl:value-of select="@topic" />/<xsl:value-of select="@filename" />.asy on Github</a><xsl:text>.</xsl:text>
+              <br/>
+              <xsl:text>(Compiled with Asymptote </xsl:text><xsl:value-of select="@asy_version" /><xsl:text>)</xsl:text>
+            </span>
         </td><td></td></tr>
       </table>
       <div>
@@ -125,8 +131,8 @@ $(document).ready(function(){
         <input type="button" class="hst" id="btn{@id}" name="{@id}" value="Hide Code" />
       </div>
       <div class="code asy">
-        <pre id="pre{@id}"><xsl:apply-templates select="pre"/></pre></div>
-      </div>
+      <pre id="pre{@id}"><xsl:apply-templates select="pre"/></pre></div>
+    </div>
   </xsl:template>
 
   <xsl:template match="pre"><xsl:apply-templates /></xsl:template>

@@ -34,7 +34,8 @@ IMPORTd="\(<span class=\"builtin\">import<\/span>\) *carteApoints"
 COMC="s!${IMPORTc}!\1 <a href=\"https://github.com/pivaldi/asymptote-packages\">Lsystem</a>!g"
 COMD="s!${IMPORTd}!\1 <a href=\https://github.com/pivaldi/asymptote-packages\">carteApoints</a>!g"
 
-for topic in $_TOPICS; do
+# for topic in $_TOPICS; do
+for topic in animations; do
   echo "==> Handling topic '$topic'…"
 
   SRC_DIR=$(get-src-dir "$topic")
@@ -136,7 +137,7 @@ EOF
     }
 
     CODE_ATTRS="id=\"$(cat "${fullssext}.id")\" number=\"${numfig#1}\""
-    CODE_ATTRS="${CODE_ATTRS} filename=\"${ficssext}\" $(cat "${fullssext}.buildinfo") postid=\"${POSTID}\""
+    CODE_ATTRS="${CODE_ATTRS} $(cat "${fullssext}.buildinfo") postid=\"${POSTID}\""
     # ---------------------
     # * code de la figure *
     cat >"${TARGET_BUILD_XML_DIR}${ficssext}.xml" <<EOF
