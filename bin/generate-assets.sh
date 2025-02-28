@@ -35,7 +35,7 @@ init_build_option() {
 init_build_option
 
 convert_() {
-  $CONVERT_CMD -density 350 -quality 100 -depth 8 -strip "${1}" -resample 96 "${2}"
+  $CONVERT_CMD -density 350 -quality 100 -depth 8 "${1}" -resample 96 "${2}"
 }
 
 ## Extrait du pdf $1 la page 3/4 du doc et la convertit en $2
@@ -47,7 +47,7 @@ extract_pdf_page() {
   page="${TMP_PROJECT_DIR}page.pdf"
   pdftk A="$1" cat A$I output "$page" || die $?
 
-  echo "Generating of ${EXTIMAG} for presentation $2"
+  echo "Generating of ${EXTIMAG} from $page for presentation $2"
   convert_ "$page" "$2" || die $?
   DEFAULT_OUT_FILE="$page"
 }
@@ -98,7 +98,7 @@ createAnimation() {
     fi
   fi
 
-  if [ -e "${1}.pdf" ] && [ "${1}.asy" -nt "${1}.gif" ]; then #Animation vectoriel
+  [ -e "${1}.pdf" ] && [ "${1}.asy" -nt "${1}.gif" ] && { #Animation vectoriel
     printf "Rediscover of %s.pdf…\n" "${1}"
 
     find -maxdepth 1 -name "pg*.pdf" -exec rm {} \;
@@ -108,26 +108,15 @@ createAnimation() {
 
     $CONVERT_CMD -delay 10 -loop 0 pg*.pdf "${1}.gif" || die $? && echo " DONE !"
     rm pg*.pdf ## cleaning after burst
-  else         ## only gif file exists
+  }
+
+  [ "${1}.gif" -nt "${1}.${EXTIMAG}" ] && {
     echo "Generating ${EXTIMAG} presentation from ${1}.gif"
+    NB=$($CONVERT_CMD "${1}.gif" -format "%N" info:)
+    N=$((NB / 3))
+    $CONVERT_CMD "${1}.gif[$N]" "${1}.${EXTIMAG}" || die $?
 
-    $CONVERT_CMD "$1.gif" tmp.${EXTIMAG} || die $?
-
-    [ -e tmp.${EXTIMAG} ] && { ## the gif genrerates one file (case of webp for example).
-      mv "tmp.${EXTIMAG}" "${1}.${EXTIMAG}"
-    } || { ## the gif genrerates many files (case of png for exemple).
-      NB=0
-      for I in $(find -maxdepth 1 -name "tmp-*[0-9].${EXTIMAG}" | sed "s/.\/tmp-\([0-9]*\).${EXTIMAG}/\1/g" | sort -n); do
-        NB=$((NB + 1))
-      done
-
-      NB=$((3 * NB / 4))
-      mv "tmp-${NB}.${EXTIMAG}" "${1}.${EXTIMAG}"
-      rm tmp-*.*
-    }
-  fi
-
-  [ "${1}.gif" -nt "${1}.mp4" ] && {
+    echo "Generating mp4 video from ${1}.gif"
     ffmpeg -y -i "${1}.gif" -movflags faststart -pix_fmt yuv420p -crf 0 -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" "${1}.mp4" || exit 1
   }
 

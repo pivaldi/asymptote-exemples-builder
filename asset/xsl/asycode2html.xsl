@@ -114,12 +114,12 @@
           <td valign="top"><xsl:apply-templates select="text-html" /></td>
         </tr>
         <tr>
-          <td align="center"><span class="legend">
+          <td><span class="legend">
             <xsl:text>Figure </xsl:text><xsl:value-of select="@number" /><xsl:text>: </xsl:text>
             <a href="https://github.com/pivaldi/asymptote-exemples/blob/master/{@topic}/{@filename}.asy">
               Show <xsl:value-of select="@topic" />/<xsl:value-of select="@filename" />.asy on Github</a><xsl:text>.</xsl:text>
               <br/>
-              <xsl:text>(Compiled with Asymptote </xsl:text><xsl:value-of select="@asy_version" /><xsl:text>)</xsl:text>
+              <xsl:text>Generated with Asymptote </xsl:text><xsl:value-of select="@asy_version" /><xsl:text>.</xsl:text>
             </span>
         </td><td></td></tr>
       </table>
