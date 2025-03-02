@@ -131,11 +131,6 @@ EOF
     ## The post id (useful for CMS).
     POSTID=$(cat "${fullssext}.id")
 
-    echo >"${ROOT_PROJECT_DIR}/buildinfo-missing.txt"
-    [ -e "${fullssext}.buildinfo" ] || {
-      echo "${fullssext}.buildinfo" >>"${ROOT_PROJECT_DIR}/buildinfo-missing.txt"
-    }
-
     CODE_ATTRS="id=\"$(cat "${fullssext}.id")\" number=\"${numfig#1}\""
     CODE_ATTRS="${CODE_ATTRS} $(cat "${fullssext}.buildinfo") postid=\"${POSTID}\""
     # ---------------------

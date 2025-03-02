@@ -87,7 +87,6 @@
   </xsl:template>
 
 
-
   <xsl:template match="code">
     <h5 class="hidden"><a class="hidden" name="fig{@number}"></a>phantom</h5>
     <table class="hsep"><tr><td></td></tr></table>
@@ -99,7 +98,10 @@
           <td>
             <xsl:choose>
               <xsl:when test="@is_anim='true'">
-                <video id="fig{@id}" loop="true" muted="true" controls="true">
+                <video id="fig{@id}" muted="true" controls="true">
+                  <xsl:if test="@loop='true'">
+                    <xsl:attribute name="loop">true</xsl:attribute>
+                  </xsl:if>
                   <source src="{@md5}.mp4" type="video/mp4" />
                   Your browser does not support HTML5 video…
                   <a src="{@md5}.gif">See the video as animated gif</a>.

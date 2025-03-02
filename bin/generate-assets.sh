@@ -24,6 +24,7 @@ EXTIMAG_BCK="$EXTIMAG"
 
 init_build_option() {
   ANIM=false
+  LOOP=true
   ASYOPTION='-noprc -tex "pdflatex"'
   DEFAULT_OUT_FILE=
   EXTIMAG="$EXTIMAG_BCK"
@@ -151,12 +152,14 @@ for topic in animations; do
       . "$FIG_RC"
     }
 
+    [ -z "$LOOP" ] && LOOP=true
+
     EXTASYTMP="$EXTASY"
     EXTIMAGTMP="$EXTIMAG"
 
     if $ANIM; then
       COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION $VIEW_OPTION ${srcficssext}"
-      EXTASYTMP=pdf
+      EXTASYTMP=gif
       EXTIMAGTMP=${EXTIMAG}
     else
       COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION -f ${EXTASYTMP} $VIEW_OPTION ${srcficssext}"
@@ -213,6 +216,7 @@ for topic in animations; do
       IS_ANIM='false'
       [ -e "${destficssext}.gif" ] && IS_ANIM="true"
 
+      LOOPING="loop=\"${LOOP}\""
       MD5="md5=\"${MD5_SUM}\""
       IMG_EXT="img_ext=\"${EXTIMAG}\""
       TOPIC="topic=\"${topic}\""
@@ -220,7 +224,7 @@ for topic in animations; do
       PDF="has_pdf=\"${HAS_PDF}\""
       ANIM="is_anim=\"${IS_ANIM}\""
       ASY_VER="asy_version=\"$($ASY_CMD --version 2>&1 | sed 1q | awk -F ' ' '{print $3}')\""
-      echo "$FILENAME $MD5 $IMG_EXT $TOPIC $PDF $ANIM $ASY_VER" >"${srcficssext}.buildinfo"
+      echo "$FILENAME $MD5 $IMG_EXT $TOPIC $PDF $ANIM $LOOPING $ASY_VER" >"${srcficssext}.buildinfo"
 
       ## Creating symlink to all needed media
       [ ! -e "${MD5_SUM}.${EXTIMAG}" ] && ln -s "${srcficssext}.${EXTIMAG}" "${MD5_SUM}.${EXTIMAG}"
