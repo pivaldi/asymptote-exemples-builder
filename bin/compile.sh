@@ -314,7 +314,7 @@ if $CREATECODE; then
   $GENCODE && {
     cat >code.xml <<EOF
 <?xml version="1.0" ?>
-<?xml-stylesheet type="text/xsl" href="${RES}xsl/asycode2html.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="${RES}xsl/html-topics.xsl" ?>
 <asy-code title="Asy - $(cat title)" date="$(LANG=US date)" resource="${RES}">
 <presentation>$(cat presentation)</presentation>
 EOF
@@ -358,7 +358,7 @@ EOF
     $GENCODE && {
       cat >"${ficssext}.xml" <<EOF
 <?xml version="1.0" ?>
-<?xml-stylesheet type="text/xsl" href="${RES}xsl/asycode2html.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="${RES}xsl/html-topics.xsl" ?>
 <asy-code title="Asy - $(cat title)" date="$(LANG=US date)" resource="${RES}"  dirname="${REL_OUT_DIR}">
 <presentation>$(cat presentation)</presentation>
 <code number="${i#1}" filename="${ficssext}" \

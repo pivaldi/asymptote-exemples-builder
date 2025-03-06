@@ -126,8 +126,8 @@ createAnimation() {
 
 sync-src-dir-to-tmp-dir || die $?
 
-# for topic in $TOPICS; do
-for topic in animations; do
+for topic in $TOPICS; do
+  # for topic in animations; do
   echo "==> Handling topic '$topic'..."
 
   SRC_DIR=$(get-src-dir "$topic")

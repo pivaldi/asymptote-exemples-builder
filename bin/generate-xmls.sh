@@ -34,8 +34,13 @@ IMPORTd="\(<span class=\"builtin\">import<\/span>\) *carteApoints"
 COMC="s!${IMPORTc}!\1 <a href=\"https://github.com/pivaldi/asymptote-packages\">Lsystem</a>!g"
 COMD="s!${IMPORTd}!\1 <a href=\https://github.com/pivaldi/asymptote-packages\">carteApoints</a>!g"
 
-# for topic in $_TOPICS; do
-for topic in animations; do
+cat >"${BUILD_XML_DIR}index.xml" <<EOF
+<?xml version="1.0" ?>
+<asy-codes>
+EOF
+
+for topic in $_TOPICS; do
+  # for topic in animations; do
   echo "==> Handling topic '$topic'…"
 
   SRC_DIR=$(get-src-dir "$topic")
@@ -50,7 +55,13 @@ for topic in animations; do
   catFile="${SRC_DIR}category.txt"
   [ -e "$catFile" ] && {
     while IFS= read -r CAT; do
-      CATS="${CATS}\n<category>${CAT}</category>"
+      lcat=$(
+        echo "$CAT" | awk -F '|' '{print $3}' |
+          awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2'
+      )
+
+      idcat=$(echo "$CAT" | awk -F '|' '{print $2}')
+      CATS="${CATS}\n<category id=\"$idcat\">${lcat}</category>"
     done <"${catFile}"
   }
 
@@ -61,7 +72,7 @@ for topic in animations; do
   # * L'index de tous les codes *
   cat >"${TARGET_BUILD_XML_DIR}index.xml" <<EOF
 <?xml version="1.0" ?>
-<asy-code title="$(cat "${SRC_DIR}title.txt")" date="$(LANG=US date)">
+<asy-code title="$(cat "${SRC_DIR}title.txt")" topic="$topic" date="$(LANG=US date)">
 <presentation>$(cat "${SRC_DIR}presentation.html")</presentation>
 $(echo -e "$CATS")
 EOF
@@ -111,8 +122,7 @@ EOF
       while IFS= read -r TAG; do
         ltag=$(
           echo "$TAG" | awk -F '|' '{print $3}' |
-            awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2' |
-            tr ' /' '__'
+            awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2'
         )
 
         idtag=$(echo "$TAG" | awk -F '|' '{print $2}')
@@ -176,4 +186,10 @@ EOF
 </asy-figures>
 EOF
 
+  sed '1d' "${TARGET_BUILD_XML_DIR}index.xml" >>"${BUILD_XML_DIR}index.xml"
+
 done
+
+cat >>"${BUILD_XML_DIR}index.xml" <<EOF
+</asy-codes>
+EOF

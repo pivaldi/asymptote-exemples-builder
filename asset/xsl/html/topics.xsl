@@ -98,7 +98,7 @@
           <td>
             <xsl:choose>
               <xsl:when test="@is_anim='true'">
-                <video id="fig{@id}" muted="true" controls="true">
+                <video id="fig{@id}" muted="true" controls="true" poster="{@md5}.{@img_ext}">
                   <xsl:if test="@loop='true'">
                     <xsl:attribute name="loop">true</xsl:attribute>
                   </xsl:if>
@@ -156,8 +156,8 @@
 
   <xsl:template name="menu">
     <div class="menuhf">
-      <span><a href="../index.html">Up</a></span>
-      <span><a href="http://www.piprime.fr">Home</a></span>
+      <span><a href="../index.html">Home</a></span>
+      <span><a href="https://github.com/pivaldi/asymptote-exemples/tree/master/{@topic}">View Source Code</a></span>
       <span><a href="http://asymptote.sourceforge.net/">Official Asymptote WEB Site</a></span>
     </div>
   </xsl:template>
