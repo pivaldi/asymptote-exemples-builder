@@ -2,16 +2,35 @@
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
+  <xsl:template name="head-base">
+    <link rel="shortcut icon" href="./favicon.png" type="image/x-icon" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="keywords"
+        content="asymptote,latex,graphique,graphic,scientifique,scientific,logiciel,software"/>
+    <meta name="description" content="Examples of asymptote graphics codes and pictures" />
+    <meta name="author" content="Philippe Ivaldi" />
+    <link href="css/style-asy.css" rel="stylesheet" type="text/css" />
+    <link href="css/style-pygmentize-zenburn.css" rel="stylesheet" type="text/css"/>
+  </xsl:template>
+
+  <xsl:template name="head-js">
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.fancybox/jquery.fancybox-1.2.1.pack.js"></script>
+    <link rel="stylesheet" href="js/jquery.fancybox/jquery.fancybox.css" type="text/css" media="screen"/>
+    <script type="text/javascript" src="js/pi.js"></script>
+  </xsl:template>
+
+
   <xsl:template match="pre">
     <pre><xsl:apply-templates /></pre>
   </xsl:template>
 
-  <xsl:template name="menu-img">
+  <xsl:template match="asy-code" name="menu-img">
     <div class="fixedr">
       <div class="dynamic">
         <a href="figure-index.html">List of pictures</a>
         <div class="overflow">
-          <xsl:for-each select="/asy-code/code">
+          <xsl:for-each select="code">
             <a href="#fig{@number}">
               <img class="menu" src="{@topic}/{@md5}.{@img_ext}" alt="Figure {@number}"/>
               </a><br/>figure <xsl:value-of select="@number"/><br/>
@@ -21,7 +40,7 @@
     </div>
   </xsl:template>
 
-  <xsl:template match="code">
+  <xsl:template match="code" name="code">
     <h5 class="hidden"><a class="hidden" name="fig{@number}"></a>phantom</h5>
     <table class="hsep"><tr><td></td></tr></table>
     <div class="code-contener">
@@ -62,7 +81,7 @@
                 <xsl:call-template name="category-link">
                   <xsl:with-param name="label" select="." />
                   <xsl:with-param name="id" select="@id" />
-                </xsl:call-template><xsl:if test="position() != last()"><xsl:text disable-output-escaing="yes"> | </xsl:text></xsl:if>
+                  </xsl:call-template><xsl:if test="position() != last()"><xsl:text disable-output-escaing="yes"> | </xsl:text></xsl:if>
               </xsl:for-each>
             </div>
         </td><td></td></tr>

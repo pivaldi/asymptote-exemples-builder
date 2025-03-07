@@ -52,15 +52,15 @@ xsltproc --xincludestyle "${ROOT_PROJECT_DIR}asset/xsl/html/index.xsl" \
     "$XML_INDEX_PATH" >"${BUILD_HTML_DIR}index.html" || exit 1
 
 while IFS= read -r CAT; do
-    lcat=$(
+    label=$(
         echo "$CAT" | awk -F '|' '{print $3}' |
             awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2'
     )
-    idcat=$(echo "$CAT" | awk -F '|' '{print $2}')
+    id=$(echo "$CAT" | awk -F '|' '{print $2}')
 
-    CAT_FILE_NAME="category-${idcat}.html"
+    CAT_FILE_NAME="category-${id}.html"
     echo "==> Handling $XML_INDEX_PATH to generate category file $CAT_FILE_NAME"
-    xsltproc --stringparam catlabel "$lcat" --stringparam catid "$idcat" \
+    xsltproc --stringparam label "$label" --stringparam id "$id" \
         --xincludestyle "${ROOT_PROJECT_DIR}asset/xsl/html/category.xsl" \
         "$XML_INDEX_PATH" >"${BUILD_HTML_DIR}${CAT_FILE_NAME}" || exit 1
 

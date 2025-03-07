@@ -8,25 +8,15 @@
   <xsl:template match="/asy-code">
     <html>
       <head>
-        <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="keywords" content="asymptote,latex,graphique,graphic,scientifique,scientific,logiciel,software" />
-        <meta name="description" content="asymptote latex graphique graphic scientifique scientific logiciel software" />
-        <meta name="author" content="Philippe Ivaldi" />
-        <meta name="generator" content="Emacs" />
-        <link href="css/style-asy.css" rel="stylesheet" type="text/css" />
-        <link href="css/style-pygmentize-zenburn.css" rel="stylesheet" type="text/css" />
-        <script type="text/javascript" src="js/jquery.js"></script>
-        <script type="text/javascript" src="js/jquery.fancybox/jquery.fancybox-1.2.1.pack.js"></script>
-        <link rel="stylesheet" href="js/jquery.fancybox/jquery.fancybox.css" type="text/css" media="screen" />
-        <script type="text/javascript" src="js/pi.js"></script>
+        <xsl:call-template name="head-base"/>
+        <xsl:call-template name="head-js"/>
         <title><xsl:value-of select="@title" /></title>
       </head>
       <body>
         <xsl:call-template name="menu"/>
         <center><div class="presentation"><xsl:apply-templates select="presentation" /></div></center>
         <xsl:call-template name="menu-img"/>
-        <xsl:apply-templates select="code"/>
+        <xsl:apply-templates select="code" name="code"/>
         <div class="foot">
           <xsl:call-template name="menu"></xsl:call-template>
           <p class="last-modif">
