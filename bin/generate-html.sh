@@ -32,26 +32,24 @@ rsync -au "${ASSET_DIR}html/" "${BUILD_HTML_DIR}" || exit 1
 ## html directory structure.
 rsync -au "${BUILD_ASY_DIR}" "${BUILD_HTML_DIR}" || exit 1
 
-# for topic in $_TOPICS; do
-#     # for topic in animations; do
-#     echo "==> Handling topic '$topic'..."
+for topic in $_TOPICS; do
+    # for topic in animations; do
+    echo "==> Handling topic '$topic'..."
 
-#     SRC_DIR=$(get-src-dir "$topic")
-#     ASSET_DIR="${BUILD_ASY_DIR}${topic}/"
-#     TARGET_BUILD_XML_DIR="${BUILD_XML_DIR}${topic}/"
-#     TARGET_BUILD_HTML_DIR="${BUILD_HTML_DIR}${topic}/"
-#     # TMP_DIR="${TMP_PROJECT_DIR}${topic}/"
+    SRC_DIR=$(get-src-dir "$topic")
+    ASSET_DIR="${BUILD_ASY_DIR}${topic}/"
+    TARGET_BUILD_XML_DIR="${BUILD_XML_DIR}${topic}/"
 
-#     cd "$TARGET_BUILD_XML_DIR" || exit 1
-#     printf "\tProcessing %s/index.xml\n" "$(pwd)"
-#     xsltproc --xincludestyle "${ROOT_PROJECT_DIR}asset/xsl/html/topics.xsl" \
-#         index.xml >"${TARGET_BUILD_HTML_DIR}index.html" || exit 1
-# done
+    cd "$TARGET_BUILD_XML_DIR" || exit 1
+    printf "\tProcessing %s/index.xml\n" "$(pwd)"
+    xsltproc --xincludestyle "${ROOT_PROJECT_DIR}asset/xsl/html/topics.xsl" \
+        index.xml >"${BUILD_HTML_DIR}${topic}.html" || exit 1
+done
 
 XML_INDEX_PATH="${BUILD_XML_DIR}index.xml"
-# echo "==> Handling $XML_INDEX_PATH to generate top level index.html"
-# xsltproc --xincludestyle "${ROOT_PROJECT_DIR}asset/xsl/html/index.xsl" \
-#     "$XML_INDEX_PATH" >"${BUILD_HTML_DIR}index.html" || exit 1
+echo "==> Handling $XML_INDEX_PATH to generate top level index.html"
+xsltproc --xincludestyle "${ROOT_PROJECT_DIR}asset/xsl/html/index.xsl" \
+    "$XML_INDEX_PATH" >"${BUILD_HTML_DIR}index.html" || exit 1
 
 while IFS= read -r CAT; do
     lcat=$(

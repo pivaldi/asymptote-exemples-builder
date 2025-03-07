@@ -27,15 +27,26 @@
         <xsl:call-template name="menu"/>
         <div class="content">
           <h1>Etensive Asymptote Gallery</h1>
-          <h2>The Vector Graphics Language</h2>
           <p>Asymptote is a descriptive vector graphics language that provides a natural coordinate-based framework for technical drawing.</p>
           <p>Here is an unofficial extensive gallery of examples.</p>
+          <h2>Browse by Topic</h2>
           <ul>
             <xsl:for-each select="asy-code">
               <li>
-                <!-- <xsl:apply-templates select="categories" /> -->
-                <xsl:call-template name="topic-link">
-                  <xsl:with-param name="topic" select = "@topic" />
+                <xsl:call-template name="makelink">
+                  <xsl:with-param name="text" select="@topic" />
+                  <xsl:with-param name="url" select="concat(@topic, '.html')" />
+                </xsl:call-template>
+              </li>
+            </xsl:for-each>
+          </ul>
+          <h2>Browse by Category</h2>
+          <ul>
+            <xsl:for-each select="all-categories/category">
+              <li>
+                <xsl:call-template name="category-link">
+                  <xsl:with-param name="label" select="." />
+                  <xsl:with-param name="id" select="@id" />
                 </xsl:call-template>
               </li>
             </xsl:for-each>

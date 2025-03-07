@@ -34,9 +34,34 @@ IMPORTd="\(<span class=\"builtin\">import<\/span>\) *carteApoints"
 COMC="s!${IMPORTc}!\1 <a href=\"https://github.com/pivaldi/asymptote-packages\">Lsystem</a>!g"
 COMD="s!${IMPORTd}!\1 <a href=\https://github.com/pivaldi/asymptote-packages\">carteApoints</a>!g"
 
+function getXMLListFromFile() {
+  local FILE="$1"
+  local TAG="$2"
+  local LIST=''
+  EOL=''
+
+  while IFS= read -r CAT; do
+    label=$(echo "$CAT" | awk -F '|' '{print $3}' | awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2')
+    id=$(echo "$CAT" | awk -F '|' '{print $2}')
+    LIST="${LIST}${EOL}<${TAG} id=\"$id\">${label}</${TAG}>"
+    EOL="\n"
+  done <"$FILE"
+
+  echo -e "$LIST"
+}
+
+catsFile="${SOURCE_DIR}categories.txt"
+tagsFile="${SOURCE_DIR}tags.txt"
+
 cat >"${BUILD_XML_DIR}index.xml" <<EOF
 <?xml version="1.0" ?>
 <asy-codes>
+<all-categories>
+$(getXMLListFromFile "$catsFile" 'category')
+</all-categories>
+<all-tags>
+$(getXMLListFromFile "$tagsFile" 'tag')
+</all-tags>
 EOF
 
 for topic in $_TOPICS; do
@@ -51,21 +76,10 @@ for topic in $_TOPICS; do
   # *====================================
   # *..Building xml part of categories..*
   # *====================================
-  CATS="<categories>"
+  LIST=''
   catFile="${SRC_DIR}category.txt"
-  [ -e "$catFile" ] && {
-    while IFS= read -r CAT; do
-      lcat=$(
-        echo "$CAT" | awk -F '|' '{print $3}' |
-          awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2'
-      )
-
-      idcat=$(echo "$CAT" | awk -F '|' '{print $2}')
-      CATS="${CATS}\n<category id=\"$idcat\">${lcat}</category>"
-    done <"${catFile}"
-  }
-
-  CATS="${CATS}\n</categories>"
+  [ -e "$catFile" ] && LIST=$(getXMLListFromFile "$catFile" 'category')
+  CATS="<categories>${LIST}\n</categories>"
   # *==============================
 
   # -----------------------------
@@ -116,21 +130,10 @@ EOF
     # *==============================
     # *..Building xml part of tags..*
     # *==============================
-    TAGS="<tags>"
+    LIST=''
     tagFile="${fullssext}.tag"
-    [ -e "$tagFile" ] && {
-      while IFS= read -r TAG; do
-        ltag=$(
-          echo "$TAG" | awk -F '|' '{print $3}' |
-            awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2'
-        )
-
-        idtag=$(echo "$TAG" | awk -F '|' '{print $2}')
-        TAGS="${TAGS}\n<tag id=\"${idtag}\">${ltag}</tag>"
-      done <"${tagFile}"
-    }
-
-    TAGS="${TAGS}\n</tags>"
+    [ -e "$tagFile" ] && LIST=$(getXMLListFromFile "$tagFile" 'tag')
+    TAGS="<tags>${LIST}\n</tags>"
     # *==============================
 
     ## Creating unique key for code anchor

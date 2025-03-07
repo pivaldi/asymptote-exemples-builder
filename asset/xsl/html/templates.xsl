@@ -13,7 +13,7 @@
         <div class="overflow">
           <xsl:for-each select="/asy-code/code">
             <a href="#fig{@number}">
-              <img class="menu" src="{@md5}.{@img_ext}" alt="Figure {@number}"/>
+              <img class="menu" src="{@topic}/{@md5}.{@img_ext}" alt="Figure {@number}"/>
               </a><br/>figure <xsl:value-of select="@number"/><br/>
           </xsl:for-each>
         </div>
@@ -32,17 +32,17 @@
           <td>
             <xsl:choose>
               <xsl:when test="@is_anim='true'">
-                <video id="fig{@id}" muted="true" controls="true" poster="{@md5}.{@img_ext}">
+                <video id="fig{@id}" muted="true" controls="true" poster="{@topic}/{@md5}.{@img_ext}">
                   <xsl:if test="@loop='true'">
                     <xsl:attribute name="loop">true</xsl:attribute>
                   </xsl:if>
-                  <source src="{@md5}.mp4" type="video/mp4" />
+                  <source src="{@topic}/{@md5}.mp4" type="video/mp4" />
                   Your browser does not support HTML5 video…
-                  <a src="{@md5}.gif">See the video as animated gif</a>.
+                  <a src="{@topic}/{@md5}.gif">See the video as animated gif</a>.
                 </video>
               </xsl:when>
               <xsl:otherwise>
-                <img class="imgborder" src="{@md5}.{@img_ext}" alt="Figure {@topic} {@number}"/>
+                <img class="imgborder" src="{@topic}/{@md5}.{@img_ext}" alt="Figure {@topic} {@number}"/>
                 <br />
               </xsl:otherwise>
             </xsl:choose>
@@ -50,13 +50,21 @@
           <td valign="top"><xsl:apply-templates select="text-html" /></td>
         </tr>
         <tr>
-          <td><span class="legend">
+          <td><div class="legend">
             <xsl:text>Figure </xsl:text><xsl:value-of select="@number" /><xsl:text>: </xsl:text>
             <a href="https://github.com/pivaldi/asymptote-exemples/blob/master/{@topic}/{@filename}.asy">
               Show <xsl:value-of select="@topic" />/<xsl:value-of select="@filename" />.asy on Github</a><xsl:text>.</xsl:text>
               <br/>
               <xsl:text>Generated with Asymptote </xsl:text><xsl:value-of select="@asy_version" /><xsl:text>.</xsl:text>
-            </span>
+              <br/>
+              <xsl:for-each select="../categories/category">
+                <xsl:if test="position() = 1"><xsl:text disable-output-escaing="yes">Categories : </xsl:text></xsl:if>
+                <xsl:call-template name="category-link">
+                  <xsl:with-param name="label" select="." />
+                  <xsl:with-param name="id" select="@id" />
+                </xsl:call-template><xsl:if test="position() != last()"><xsl:text disable-output-escaing="yes"> | </xsl:text></xsl:if>
+              </xsl:for-each>
+            </div>
         </td><td></td></tr>
       </table>
       <div>
@@ -90,7 +98,7 @@
 
   <xsl:template name="menu">
     <div class="menuhf">
-      <span><a href="../index.html">Home</a></span>
+      <span><a href="index.html">Home</a></span>
       <span><a href="https://github.com/pivaldi/asymptote-exemples/tree/master/{@topic}">View Source Code</a></span>
       <span><a href="http://asymptote.sourceforge.net/">Official Asymptote WEB Site</a></span>
     </div>
@@ -106,6 +114,10 @@
     <xsl:copy-of select="text()|*" />
   </xsl:template>
 
+  <xsl:template match="html">
+    <xsl:copy-of select="text()|*" />
+  </xsl:template>
+
   <xsl:template match="view">
     <xsl:text> </xsl:text><span class="documentation">View the definition of</span><xsl:text> </xsl:text>
     <xsl:call-template name="makelink">
@@ -115,19 +127,12 @@
     <xsl:text> </xsl:text>
   </xsl:template>
 
-
-  <xsl:template match="html">
-    <xsl:copy-of select="text()|*" />
+  <xsl:template name="category-link">
+    <xsl:param name="id" />
+    <xsl:param name="label" />
+    <xsl:call-template name="makelink">
+      <xsl:with-param name="text" select="$label" />
+      <xsl:with-param name="url" select="concat('category-', $id, '.html')" />
+    </xsl:call-template>
   </xsl:template>
-
-
-  <xsl:template name="topic-link">
-    <xsl:param name = "topic" />
-    <a href="./{$topic}/index.html">Topic <xsl:value-of select="$topic"/> --
-    <xsl:for-each select="categories/category">
-      <xsl:value-of select="." /><xsl:if test="position() != last()"><xsl:text disable-output-escaping="yes"> &#65286; </xsl:text></xsl:if>
-    </xsl:for-each>
-    </a>
-  </xsl:template>
-
 </xsl:stylesheet>

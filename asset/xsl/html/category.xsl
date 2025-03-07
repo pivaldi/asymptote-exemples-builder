@@ -2,12 +2,13 @@
 <xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <xsl:param name="catlabel"/>
+  <xsl:param name="catid"/>
   <xsl:include href="templates.xsl"/>
 
   <xsl:output method="html" encoding="UTF-8" indent="yes"
               doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" />
 
-  <xsl:template match="/asy-codes">
+  <xsl:template match="/">
     <html>
       <head>
         <link rel="shortcut icon" href="./favicon.png" type="image/x-icon" />
@@ -27,17 +28,10 @@
       <body>
         <xsl:call-template name="menu"/>
         <div class="content">
-          <h1>Asymptote Gallery -- <xsl:value-of select="$catlabel"/></h1>
-          <!-- <ul> -->
-          <!--   <xsl:for-each select="asy-code"> -->
-          <!--     <li> -->
-          <!--       <!-\- <xsl:apply-templates select="categories" /> -\-> -->
-          <!--       <xsl:call-template name="topic-link"> -->
-          <!--         <xsl:with-param name="topic" select = "@topic" /> -->
-          <!--       </xsl:call-template> -->
-          <!--     </li> -->
-          <!--   </xsl:for-each> -->
-          <!-- </ul> -->
+          <h1>Asymptote Gallery -- <xsl:value-of select="$catid"/> - <xsl:value-of select="$catlabel"/></h1>
+          <ul>
+            <xsl:apply-templates name="categories"/>
+          </ul>
         </div>
         <div class="foot">
           <xsl:call-template name="menu"></xsl:call-template>
@@ -49,4 +43,11 @@
       </body>
     </html>
   </xsl:template>
+
+  <xsl:template match="asy-code[.//category[@id='$catid']]" name="categories">
+    <xsl:apply-templates select="code"/>
+    <!-- <h1>plop</h1> -->
+    <!-- <xsl:apply-templates /> -->
+  </xsl:template>
+
 </xsl:stylesheet>

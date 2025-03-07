@@ -31,6 +31,8 @@ for topic in $TOPICS; do
   DIR_CREATED=true
 done
 
+# mkdir -p "${BUILD_DIR}"{html,md}/{categories,tags}
+
 $DIR_CREATED && {
   echo "Build directory tree was created in $BUILD_DIR"
   sync-src-dir-to-tmp-dir
