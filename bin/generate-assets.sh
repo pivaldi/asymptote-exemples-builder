@@ -139,6 +139,7 @@ for topic in $TOPICS; do
     srcficssext=${srcfic%.*}
     destfic="${SRC_DIR}$srcfic"
     destficssext=${destfic%.*}
+    LOOP=
 
     init_build_option
     BUILD_RC="${SRC_DIR}build.rc"
@@ -152,8 +153,6 @@ for topic in $TOPICS; do
       . "$FIG_RC"
     }
 
-    [ -z "$LOOP" ] && LOOP=true
-
     EXTASYTMP="$EXTASY"
     EXTIMAGTMP="$EXTIMAG"
 
@@ -161,6 +160,7 @@ for topic in $TOPICS; do
       COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION $VIEW_OPTION ${srcficssext}"
       EXTASYTMP=gif
       EXTIMAGTMP=${EXTIMAG}
+      [ -z "$LOOP" ] && LOOP=true
     else
       COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION -f ${EXTASYTMP} $VIEW_OPTION ${srcficssext}"
     fi
@@ -216,6 +216,11 @@ for topic in $TOPICS; do
       IS_ANIM='false'
       [ -e "${destficssext}.gif" ] && IS_ANIM="true"
 
+      width=$(identify -format '%w' "${srcficssext}.${EXTIMAG}")
+      height=$(identify -format '%h' "${srcficssext}.${EXTIMAG}")
+
+      DIM_W="width=\"$width\""
+      DIM_H="height=\"$height\""
       LOOPING="loop=\"${LOOP}\""
       MD5="md5=\"${MD5_SUM}\""
       IMG_EXT="img_ext=\"${EXTIMAG}\""
@@ -224,7 +229,7 @@ for topic in $TOPICS; do
       PDF="has_pdf=\"${HAS_PDF}\""
       ANIM="is_anim=\"${IS_ANIM}\""
       ASY_VER="asy_version=\"$($ASY_CMD --version 2>&1 | sed 1q | awk -F ' ' '{print $3}')\""
-      echo "$FILENAME $MD5 $IMG_EXT $TOPIC $PDF $ANIM $LOOPING $ASY_VER" >"${srcficssext}.buildinfo"
+      echo "$FILENAME $MD5 $IMG_EXT $DIM_H $DIM_W $TOPIC $PDF $ANIM $LOOPING $ASY_VER" >"${srcficssext}.buildinfo"
 
       ## Creating symlink to all needed media
       [ ! -e "${MD5_SUM}.${EXTIMAG}" ] && ln -s "${srcficssext}.${EXTIMAG}" "${MD5_SUM}.${EXTIMAG}"

@@ -32,7 +32,7 @@
         <div class="overflow">
           <xsl:for-each select="code">
             <a href="#fig{@number}">
-              <img class="menu" src="{@topic}/{@md5}.{@img_ext}" alt="Figure {@number}"/>
+              <img class="menu" loading="lazy" src="{@topic}/{@md5}.{@img_ext}" alt="Figure {@number}" width="{@width}" height="{@height}"/>
               </a><br/>figure <xsl:value-of select="@number"/><br/>
           </xsl:for-each>
         </div>
@@ -51,7 +51,7 @@
           <td>
             <xsl:choose>
               <xsl:when test="@is_anim='true'">
-                <video id="fig{@id}" muted="true" controls="true" poster="{@topic}/{@md5}.{@img_ext}">
+                <video id="fig{@id}" muted="true" controls="true" alt="Asymptote figure {@topic} {@number}" poster="{@topic}/{@md5}.{@img_ext}" width="{@width}" height="{@height}" >
                   <xsl:if test="@loop='true'">
                     <xsl:attribute name="loop">true</xsl:attribute>
                   </xsl:if>
@@ -61,7 +61,7 @@
                 </video>
               </xsl:when>
               <xsl:otherwise>
-                <img class="imgborder" src="{@topic}/{@md5}.{@img_ext}" alt="Figure {@topic} {@number}"/>
+                <img class="imgborder" src="{@topic}/{@md5}.{@img_ext}" alt="Asymptote figure {@topic} {@number}" loading="lazy" width="{@width}" height="{@height}" />
                 <br />
               </xsl:otherwise>
             </xsl:choose>

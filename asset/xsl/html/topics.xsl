@@ -15,7 +15,7 @@
       <body>
         <xsl:call-template name="menu"/>
         <center><div class="presentation"><xsl:apply-templates select="presentation" /></div></center>
-        <xsl:call-template name="menu-img"/>
+        <!-- <xsl:call-template name="menu-img"/> -->
         <xsl:apply-templates select="code" name="code"/>
         <div class="foot">
           <xsl:call-template name="menu"></xsl:call-template>

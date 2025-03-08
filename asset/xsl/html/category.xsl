@@ -17,8 +17,9 @@
       <body>
         <xsl:call-template name="menu"/>
         <div class="content">
-          <h1>Asymptote Gallery -- <xsl:value-of select="$id"/> - <xsl:value-of select="$label"/></h1>
-          <xsl:apply-templates select="/asy-codes/asy-code[.//category[@id=$id]]" name="menu-img"/>
+          <h1>Asymptote Gallery by Category</h1>
+          <h2>Category <xsl:value-of select="$id"/>-<xsl:value-of select="$label"/></h2>
+          <!-- <xsl:apply-templates select="/asy-codes/asy-code[.//category[@id=$id]]" name="menu-img"/> -->
           <xsl:apply-templates select="/asy-codes/asy-code[.//category[@id=$id]]/code" name="code"/>
         </div>
         <div class="foot">
