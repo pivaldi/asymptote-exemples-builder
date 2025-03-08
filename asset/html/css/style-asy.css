@@ -39,7 +39,7 @@ body {
     margin: 0;
     margin-bottom: 10px;
     margin-top: 0px;
-    background: #2f4f4f url(asy.png) 70% 0 no-repeat;
+    background-color: #2f4f4f;
 }
 
 pre {

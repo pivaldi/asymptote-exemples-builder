@@ -83,6 +83,14 @@
                   <xsl:with-param name="id" select="@id" />
                   </xsl:call-template><xsl:if test="position() != last()"><xsl:text disable-output-escaing="yes"> | </xsl:text></xsl:if>
               </xsl:for-each>
+              <br/>
+              <xsl:for-each select="tags/tag">
+                <!-- <xsl:if test="position() = 1"><xsl:text disable-output-escaing="yes">Tags : </xsl:text></xsl:if> -->
+                <xsl:call-template name="tag-link">
+                  <xsl:with-param name="label" select="." />
+                  <xsl:with-param name="id" select="@id" />
+                  </xsl:call-template><xsl:if test="position() != last()"><xsl:text disable-output-escaing="yes"> | </xsl:text></xsl:if>
+              </xsl:for-each>
             </div>
         </td><td></td></tr>
       </table>
@@ -149,9 +157,12 @@
   <xsl:template name="category-link">
     <xsl:param name="id" />
     <xsl:param name="label" />
-    <xsl:call-template name="makelink">
-      <xsl:with-param name="text" select="$label" />
-      <xsl:with-param name="url" select="concat('category-', $id, '.html')" />
-    </xsl:call-template>
+    <a href="{concat('category-', $id, '.html')}" rel="nofollow"><xsl:value-of select="$label" /></a>
+  </xsl:template>
+
+  <xsl:template name="tag-link">
+    <xsl:param name="id" />
+    <xsl:param name="label" />
+    <a href="{concat('tag-', $id, '.html')}" rel="nofollow">#<xsl:value-of select="$label" /></a>
   </xsl:template>
 </xsl:stylesheet>

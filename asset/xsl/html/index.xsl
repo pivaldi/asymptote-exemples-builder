@@ -30,10 +30,23 @@
             </xsl:for-each>
           </ul>
           <h2>Browse by Category</h2>
+          Because some topic can be in several categories.
           <ul>
             <xsl:for-each select="all-categories/category">
               <li>
                 <xsl:call-template name="category-link">
+                  <xsl:with-param name="label" select="." />
+                  <xsl:with-param name="id" select="@id" />
+                </xsl:call-template>
+              </li>
+            </xsl:for-each>
+          </ul>
+          <h2>Browse by Tag</h2>
+          <p>Browse with the finest granularity using the tags.</p>
+          <ul>
+            <xsl:for-each select="all-tags/tag">
+              <li>
+                <xsl:call-template name="tag-link">
                   <xsl:with-param name="label" select="." />
                   <xsl:with-param name="id" select="@id" />
                 </xsl:call-template>

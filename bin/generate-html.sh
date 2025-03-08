@@ -65,3 +65,18 @@ while IFS= read -r CAT; do
         "$XML_INDEX_PATH" >"${BUILD_HTML_DIR}${CAT_FILE_NAME}" || exit 1
 
 done <"${SOURCE_DIR}categories.txt"
+
+while IFS= read -r TAG; do
+    label=$(
+        echo "$TAG" | awk -F '|' '{print $3}' |
+            awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2'
+    )
+    id=$(echo "$TAG" | awk -F '|' '{print $2}')
+
+    TAG_FILE_NAME="tag-${id}.html"
+    echo "==> Handling $XML_INDEX_PATH to generate tag file $TAG_FILE_NAME"
+    xsltproc --stringparam label "$label" --stringparam id "$id" \
+        --xincludestyle "${ROOT_PROJECT_DIR}asset/xsl/html/tag.xsl" \
+        "$XML_INDEX_PATH" >"${BUILD_HTML_DIR}${TAG_FILE_NAME}" || exit 1
+
+done <"${SOURCE_DIR}tags.txt"
