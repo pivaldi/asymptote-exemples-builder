@@ -221,6 +221,7 @@ for topic in $TOPICS; do
 
       width=$(identify -format '%w' "${srcficssext}.${EXTIMAG}")
       height=$(identify -format '%h' "${srcficssext}.${EXTIMAG}")
+      # magick -size 140x80 xc:none -fill grey -gravity NorthWest -draw "text 10,10 "Copyright" " -gravity SouthEast -draw "text 5,15 "Copyright" " miff:- | composite -tile - $original_image
 
       DIM_W="width=\"$width\""
       DIM_H="height=\"$height\""

@@ -81,10 +81,10 @@ function Get_Cookie(check_name) {
       var tid = $(this).attr("name");
       if ($("pre#pre" + tid).is(":hidden")) {
         $("pre#pre" + tid).show("slow");
-        $("input#btn" + tid).attr({ value: "Hide Code" });
+        $("input#" + tid).attr({ value: "Hide Code" });
       } else {
-        $("pre#pre" + tid).slideUp();
-        $("input#btn" + tid).attr({ value: "Show Code" });
+        $("pre#" + tid).slideUp();
+        $("input#" + tid).attr({ value: "Show Code" });
       }
     });
 

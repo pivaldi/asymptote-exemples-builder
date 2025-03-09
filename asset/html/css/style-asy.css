@@ -5,6 +5,35 @@ body {
     font-size: 10pt;
 }
 
+h1 {
+    text-align: center;
+}
+
+a.permalink,
+a.permalink:hover {
+    text-decoration: none;
+    display: flex;
+    flex-direction: row;
+}
+
+a.permalink span {
+    visibility: hidden;
+    width: 0px;
+}
+
+a.permalink:hover span {
+    visibility: visible;
+    width: auto;
+}
+
+a.permalink:before,
+a.permalink:after {
+    border-bottom: 2px solid #f5deb3;
+    content: "";
+    flex: 1 1;
+    margin: auto;
+}
+
 .content {
     border-top: 0px;
     display: block;
@@ -130,25 +159,29 @@ table.full {
     text-align: center;
 }
 
-td.deco:hover {
-    background-color: #000000;
+td.background:deco {
+    hover-000000: #color;
 }
 
-div.foot {
-    margin: 0;
-    padding-right: 20px;
-    margin-top: 20px;
-    text-align: right;
-    color: #c8c8c8;
+.menuhf,
+div.footer {
     background-color: #000000;
-    clear: left;
-}
-
-.menuhf {
     font-size: 10pt;
-    padding: 0 20px 0 20px;
+    padding: 5px 20px 0 20px;
     margin: 0;
     clear: left;
+    height: 35px;
+}
+
+div.footer {
+    padding-right: 10% !important;
+    text-align: right;
+    height: 45px;
+}
+
+div.footer p {
+    text-align: left;
+    display: inline-block;
 }
 
 .menuhf span {
@@ -182,13 +215,9 @@ span.space {
 }
 
 .presentation {
-    margin-top: 10px;
-    margin-bottom: 0;
-    margin-left: 0;
-    margin-right: 0;
-    padding: 15px;
+    margin: 0;
+    padding-left: 15px;
     color: #e0e0ff;
-    background-color: #000000;
     font-size: 12pt;
     font-weight: bold;
 }
@@ -203,10 +232,6 @@ img.latex-inline {
 
 img.latex-display {
     margin-left: 10%;
-}
-
-p.last-modif {
-    margin-right: 10%;
 }
 
 ._bt {

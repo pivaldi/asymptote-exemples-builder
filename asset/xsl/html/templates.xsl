@@ -6,7 +6,7 @@
     <link rel="shortcut icon" href="./favicon.png" type="image/x-icon" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="keywords"
-        content="asymptote,latex,graphique,graphic,scientifique,scientific,logiciel,software"/>
+          content="asymptote,latex,graphique,graphic,scientifique,scientific,logiciel,software"/>
     <meta name="description" content="Examples of asymptote graphics codes and pictures" />
     <meta name="author" content="Philippe Ivaldi" />
     <link href="css/style-asy.css" rel="stylesheet" type="text/css" />
@@ -41,8 +41,7 @@
   </xsl:template>
 
   <xsl:template match="code" name="code">
-    <h5 class="hidden"><a class="hidden" name="fig{@number}"></a>phantom</h5>
-    <table class="hsep"><tr><td></td></tr></table>
+    <a class="permalink" name="{@topic}-fig{@number}" id="{@topic}-fig{@number}" href="#{@topic}-fig{@number}"><span>🔗PERMALING🔗</span></a>
     <div class="code-contener">
       <table class="code-img">
         <caption align="bottom">
@@ -51,7 +50,7 @@
           <td>
             <xsl:choose>
               <xsl:when test="@is_anim='true'">
-                <video id="fig{@id}" muted="true" controls="true" alt="Asymptote figure {@topic} {@number}" poster="{@topic}/{@md5}.{@img_ext}" width="{@width}" height="{@height}" >
+                <video id="{@topic}-video{@number}" muted="true" controls="true" alt="Asymptote figure {@topic} {@number}" poster="{@topic}/{@md5}.{@img_ext}" width="{@width}" height="{@height}" >
                   <xsl:if test="@loop='true'">
                     <xsl:attribute name="loop">true</xsl:attribute>
                   </xsl:if>
@@ -74,7 +73,7 @@
             <a href="https://github.com/pivaldi/asymptote-exemples/blob/master/{@topic}/{@filename}.asy">
               Show <xsl:value-of select="@topic" />/<xsl:value-of select="@filename" />.asy on Github</a><xsl:text>.</xsl:text>
               <br/>
-              <xsl:text>Generated with Asymptote </xsl:text><xsl:value-of select="@asy_version" /><xsl:text>.</xsl:text>
+              Generated with <a href="http://asymptote.sourceforge.net/">Asymptote</a> <xsl:value-of select="@asy_version" />.
               <br/>
               <xsl:for-each select="../categories/category">
                 <xsl:if test="position() = 1"><xsl:text disable-output-escaing="yes">Categories : </xsl:text></xsl:if>
@@ -99,10 +98,10 @@
       </div>
       <div>
         <input type="button" class="hsa" name="hsa{@id}" value="Hide All Codes" />
-        <input type="button" class="hst" id="btn{@id}" name="{@id}" value="Hide Code" />
+        <input type="button" class="hst" id="btn{@md5}" name="btn{@md5}" value="Hide Code" />
       </div>
       <div class="code asy">
-      <pre id="pre{@id}"><xsl:apply-templates select="pre"/></pre></div>
+      <pre id="prebtn{@md5}"><xsl:apply-templates select="pre"/></pre></div>
     </div>
   </xsl:template>
 
@@ -126,12 +125,20 @@
   <xsl:template name="menu">
     <div class="menuhf">
       <span><a href="index.html">Home</a></span>
-      <span><a href="https://github.com/pivaldi/asymptote-exemples/tree/master/{@topic}">View Source Code</a></span>
-      <span><a href="http://asymptote.sourceforge.net/">Official Asymptote WEB Site</a></span>
+      <span><a href="https://github.com/pivaldi/asymptote-exemples/tree/master/{@topic}">Source Code</a></span>
+      <span>☕ <a href="https://buymeacoffee.com/pivaldi">Buy Me a Coffee</a></span>
     </div>
   </xsl:template>
 
-  <!-- Règle pour mes tags: -->
+  <xsl:template name="footer">
+    <xsl:param name="date" />
+    <div class="footer">
+      <p>
+        Build with <a href="https://github.com/pivaldi/asymptote-exemples-builder">asymptote-exemples-builder</a> the <xsl:value-of select="$date" />
+        <br/>©2011 <a href="https://www.piprime.fr">Philippe Ivaldi</a>
+      </p>
+    </div>
+  </xsl:template>
 
   <xsl:template match="presentation">
     <xsl:copy-of select="text()|*" />
