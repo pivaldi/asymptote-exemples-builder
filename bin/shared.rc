@@ -14,6 +14,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 . "$SCRIPT_DIR/lib/lib.sh" || exit 1
 
 DEBUG=yes
+DATE=$(LANG=US date +"%Y-%m-%d@%T")
 
 # export LANG=C.UTF-8
 # export LANG="fr_FR.UTF-8"

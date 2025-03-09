@@ -15,7 +15,7 @@
       <body>
         <xsl:call-template name="menu"/>
         <div class="content">
-          <h1>Etensive Asymptote Gallery</h1>
+          <h1>Extensive Asymptote Gallery</h1>
           <p>Asymptote is a descriptive vector graphics language that provides a natural coordinate-based framework for technical drawing.</p>
           <p>Here is an unofficial extensive gallery of examples.</p>
           <h2>Browse by Topic</h2>

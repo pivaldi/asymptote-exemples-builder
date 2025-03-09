@@ -30,7 +30,9 @@ init_build_option() {
   EXTIMAG="$EXTIMAG_BCK"
   EXTASY="$EXTIMAG" # defaut output format of asy cmd
   # VIEW_OPTION=" -wait -V" ## To view the generated result
-  VIEW_OPTION=''
+  VIEW_OPTION=
+  OUT_FORMAT=
+  LOOP=
 }
 
 init_build_option
@@ -139,7 +141,6 @@ for topic in $TOPICS; do
     srcficssext=${srcfic%.*}
     destfic="${SRC_DIR}$srcfic"
     destficssext=${destfic%.*}
-    LOOP=
 
     init_build_option
     BUILD_RC="${SRC_DIR}build.rc"
@@ -155,6 +156,8 @@ for topic in $TOPICS; do
 
     EXTASYTMP="$EXTASY"
     EXTIMAGTMP="$EXTIMAG"
+
+    [ -z "$OUT_FORMAT" ] || EXTASYTMP="$OUT_FORMAT"
 
     if $ANIM; then
       COMM="LC_NUMERIC=\"french\" $ASY_CMD $ASYOPTION $VIEW_OPTION ${srcficssext}"

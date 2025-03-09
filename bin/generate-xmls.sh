@@ -55,7 +55,7 @@ tagsFile="${SOURCE_DIR}tags.txt"
 
 cat >"${BUILD_XML_DIR}index.xml" <<EOF
 <?xml version="1.0" ?>
-<asy-codes>
+<asy-codes date="$DATE">
 <all-categories>
 $(getXMLListFromFile "$catsFile" 'category')
 </all-categories>
@@ -86,7 +86,7 @@ for topic in $_TOPICS; do
   # * L'index de tous les codes *
   cat >"${TARGET_BUILD_XML_DIR}index.xml" <<EOF
 <?xml version="1.0" ?>
-<asy-code title="$(cat "${SRC_DIR}title.txt")" topic="$topic" date="$(LANG=US date)">
+<asy-code title="$(cat "${SRC_DIR}title.txt")" topic="$topic" date="$DATE">
 <presentation>$(cat "${SRC_DIR}presentation.html")</presentation>
 $(echo -e "$CATS")
 EOF
@@ -95,7 +95,7 @@ EOF
   # * Les figures *
   cat >"${TARGET_BUILD_XML_DIR}figures.xml" <<EOF
 <?xml version="1.0" ?>
-<asy-figures title="Pic - $(cat "${SRC_DIR}title.txt")" date="$(LANG=US date)" resource="${RES}">
+<asy-figures title="Pic - $(cat "${SRC_DIR}title.txt")" date="$DATE" resource="${RES}">
 <presentation>$(cat "${SRC_DIR}presentation.html")</presentation>
 $(echo -e "$CATS")
 EOF
@@ -150,7 +150,7 @@ EOF
     # * code de la figure *
     cat >"${TARGET_BUILD_XML_DIR}${ficssext}.xml" <<EOF
 <?xml version="1.0" ?>
-<asy-code title="$(cat "${SRC_DIR}title.txt")" date="$(LANG=US date)">
+<asy-code title="$(cat "${SRC_DIR}title.txt")" date="$DATE">
 <presentation>$(iconv -f utf8 <"${SRC_DIR}presentation.html")</presentation>
 $(echo -e "$CATS")
 EOF
