@@ -60,7 +60,7 @@
                 </video>
               </xsl:when>
               <xsl:otherwise>
-                <img class="imgborder" src="{@topic}/{@md5}.{@img_ext}" alt="Asymptote figure {@topic} {@number}" loading="lazy" width="{@width}" height="{@height}" />
+                <img class="imgborder" src="{@topic}/{@md5}.{@img_ext}" alt="Figure {@topic} {@number} Generated with Asymptote" loading="lazy" width="{@width}" height="{@height}" />
                 <br />
               </xsl:otherwise>
             </xsl:choose>
