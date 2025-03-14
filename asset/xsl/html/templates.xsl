@@ -15,8 +15,8 @@
 
   <xsl:template name="head-js">
     <script type="text/javascript" src="js/jquery.js"></script>
-    <script type="text/javascript" src="js/jquery.fancybox/jquery.fancybox-1.2.1.pack.js"></script>
-    <link rel="stylesheet" href="js/jquery.fancybox/jquery.fancybox.css" type="text/css" media="screen"/>
+    <!-- <script type="text/javascript" src="js/jquery.fancybox/jquery.fancybox-1.2.1.pack.js"></script> -->
+    <!-- <link rel="stylesheet" href="js/jquery.fancybox/jquery.fancybox.css" type="text/css" media="screen"/> -->
     <script type="text/javascript" src="js/pi.js"></script>
   </xsl:template>
 

@@ -114,6 +114,9 @@ createAnimation() {
   }
 
   [ "${1}.gif" -nt "${1}.${EXTIMAG}" ] && {
+    echo "Adding copyright to ${1}.gif"
+    addCopyright "${1}.gif" || die $?
+
     echo "Generating ${EXTIMAG} presentation from ${1}.gif"
     NB=$($CONVERT_CMD "${1}.gif" -format "%N" info:)
     N=$((NB / 3))
@@ -122,8 +125,6 @@ createAnimation() {
     echo "Generating mp4 video from ${1}.gif"
     ffmpeg -y -i "${1}.gif" -movflags faststart -pix_fmt yuv420p -crf 0 -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" "${1}.mp4" || exit 1
   }
-
-  cd - || die 1
 }
 
 sync-src-dir-to-tmp-dir || die $?
@@ -212,6 +213,9 @@ for topic in $TOPICS; do
         die 1
       }
 
+      echo "Adding copyright to ${srcficssext}.${EXTIMAG}"
+      addCopyright "${srcficssext}.${EXTIMAG}" || die $?
+
       MD5_SUM=$(md5sum "${srcficssext}.asy" | cut -d ' ' -f 1)
 
       HAS_PDF='false'
@@ -221,7 +225,6 @@ for topic in $TOPICS; do
 
       width=$(identify -format '%w' "${srcficssext}.${EXTIMAG}")
       height=$(identify -format '%h' "${srcficssext}.${EXTIMAG}")
-      # magick -size 140x80 xc:none -fill grey -gravity NorthWest -draw "text 10,10 "Copyright" " -gravity SouthEast -draw "text 5,15 "Copyright" " miff:- | composite -tile - $original_image
 
       DIM_W="width=\"$width\""
       DIM_H="height=\"$height\""

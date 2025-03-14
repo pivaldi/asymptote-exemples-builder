@@ -141,15 +141,6 @@ img.menu {
     height: 180px;
 }
 
-.hsep {
-    height: 10px;
-    width: 100%;
-    display: table;
-    background-image: url(barreh.png);
-    background-repeat: repeat-x;
-    background-position: top left;
-}
-
 div.left {
     float: left;
 }
@@ -284,6 +275,11 @@ a:hover {
     border: none;
     margin-bottom: 0;
 }
+
+.hst {
+    margin-left: 5px;
+}
+
 .hsa {
     margin-left: 20px;
 }

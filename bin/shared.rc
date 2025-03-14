@@ -89,3 +89,74 @@ function get-src-dir() {
 
   echo "$SRC_DIR"
 }
+
+## Add copyright to image $1. If $2 given output to $2
+function addCopyright() {
+  # magick -size 140x80 xc:none -fill grey -gravity NorthWest -draw "text 10,10 "piprime.fr" " -gravity SouthEast -draw "text 5,15 "Copyright" " -rotate -45 miff:- | composite -tile - "$1" "$2"
+  ficssext=${1%.*}
+  ext=${1##*.}
+
+  if [ "$ext" = "gif" ]; then
+    addCopyrightToGif "$1"
+    return
+  fi
+
+  out_tmp="${ficssext}_copyrigthed"
+  out="$1"
+  [ -z "$2" ] || out="$2"
+  TEXT='www.piprime.fr  www.piprime.fr  www.piprime.fr  www.piprime.fr  www.piprime.fr  www.piprime.fr  www.piprime.fr  www.piprime.fr'
+
+  {
+    magick "$1" -set option:dims "%[fx:2*w]x%[fx:2*h]" \
+      \( \
+      \( -background none -font Arial -pointsize 18 -fill grey75 \
+      label:"$TEXT" \) \
+      \( -background none -font Arial -pointsize 18 -fill grey95 \
+      label:"$TEXT" -roll +50+0 \) \
+      -smush 20 -write mpr:text +delete \
+      \) \
+      \( mpr:text -background none -gravity south -splice 0x20 \
+      -write mpr:tile +delete \) \
+      \( -size "%[dims]" tile:mpr:tile -rotate -45 \) \
+      -gravity center -compose over -composite "$out_tmp" && {
+      mv -f "$out_tmp" "$out"
+    }
+  } || exit 1
+}
+
+## Add copyright to image $1
+function addCopyrightToGif() {
+  CURRDIR=$(pwd)
+  filename=$(basename "$1")
+  ficssext=${filename%.*}
+
+  DIR=$(mktemp --directory --suffix='-asy-buidler')
+  echo "Entering into temp directory $DIR"
+  cp "$1" "$DIR" || exit 1
+  cd "$DIR" || exit 1
+
+  magick "$filename" "${ficssext}.png"
+
+  find . -name "*.png" | while read -r file; do
+    ## Don't add png whil lopping on png !
+    addCopyright "$file" "${file}.@"
+  done || exit 1
+
+  ## remoge the original png
+  find . -name "*.png" -exec rm {} ';'
+
+  ## Rename without the extension @
+  find . -name "*.@" | while read -r file; do
+    fe=${file%.*}
+    mv "$file" "${fe}"
+  done || exit 1
+
+  imgNb=$(find . -name '*.png' -print | wc -l)
+  imgNb=$((imgNb - 1))
+
+  magick "${ficssext}-%d.png[0-${imgNb}]" "${filename}"
+  cd "$CURRDIR" || exit 1
+
+  cp "${DIR}/${filename}" "$1"
+  # rm -rf "$DIR"
+}
