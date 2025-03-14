@@ -158,5 +158,5 @@ function addCopyrightToGif() {
   cd "$CURRDIR" || exit 1
 
   cp "${DIR}/${filename}" "$1"
-  # rm -rf "$DIR"
+  rm -rf "$DIR"
 }
