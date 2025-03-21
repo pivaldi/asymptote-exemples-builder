@@ -40,4 +40,4 @@ html:
 
 .PHONY: assets-clean
 assets-clean:
-	[ -e "$(current_dir)/build/asset" ] && rm -r "$(current_dir)/build/asset" || true
+	[ -e "$(current_dir)/build/asy" ] && rm -r "$(current_dir)/build/asy" || true

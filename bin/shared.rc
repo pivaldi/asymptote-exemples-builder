@@ -52,6 +52,8 @@ TOPICS=$(cd "${SOURCE_DIR}" && find -mindepth 1 -maxdepth 1 ! -path ./modules ! 
 BUILD_XML_DIR="${BUILD_DIR}xml/"
 # Directory where to write the html files
 BUILD_HTML_DIR="${BUILD_DIR}html/"
+# Directory where to write the md/hexo files
+BUILD_MD_HEXO_DIR="${BUILD_DIR}md/hexo/"
 # Directory, where the generated asy pictures and colored codes live
 BUILD_ASY_DIR="${BUILD_DIR}asy/"
 

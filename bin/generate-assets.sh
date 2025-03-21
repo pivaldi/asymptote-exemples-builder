@@ -263,25 +263,3 @@ rsync -au \
   --delete "$TMP_PROJECT_DIR" "$BUILD_ASY_DIR" || exit 1
 
 echo "DONE !"
-
-# # *=======================================================*
-# # *................Creation de index.html.................*
-# # *=======================================================*
-# if [ "code.xml" -nt "index.html" ] && $GENCODE; then
-#     echo "Creation de INDEX.HTML dans `pwd`"
-#     xsltproc code.xml | sed "s!###URI###!${URIS}!g" > index.html
-#     sed -i "s/###DIRNAME###//g" index.html
-# fi
-
-# if [ "figure.xml" -nt "figure-index.html" ] || [ "figure.xml" -nt "index.html" ]; then
-#     if $GENCODE; then
-#         echo "Creation de FIGURE-INDEX.HTML dans `pwd`"
-#         xsltproc figure.xml --stringparam gencode true > figure-index.html
-#     else
-#         echo "Creation de INDEX.HTML dans `pwd`"
-#         xsltproc figure.xml --stringparam gencode false | \
-#             sed "s!###URI###!${URIS}!g" > index.html
-#     fi
-# fi
-
-# echo "## The End ##"
