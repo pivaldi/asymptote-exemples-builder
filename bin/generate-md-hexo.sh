@@ -32,37 +32,43 @@ rsync -au "${BUILD_ASY_DIR}" "${BUILD_MD_HEXO_DIR}" || exit 1
 
 XSL_DIR="${ROOT_PROJECT_DIR}asset/xsl/md/hexo/"
 
-function cleanMDFile() {
+function fixMDFile() {
     sed -i 's/geometry_dev/geometry/g;s/{/\&lbrace;/g;s/}/\&rbrace;/g;s/h4>/h5>/g;s/h3>/h4>/g;s/h2>/h3>/g;s/h1>/h2>/g;' "$1" || exit 1
+    ## Used for
+    sed -i 's/@-\&lbrace;-@/{/g;s/@-\&rbrace;-@/}/g' "$1" || exit 1
 }
 
-for topic in $_TOPICS; do
-    # for topic in animations; do
-    echo "==> Handling topic '$topic'..."
+# for topic in $_TOPICS; do
+#     # for topic in animations; do
+#     echo "==> Handling topic '$topic'..."
 
-    SRC_DIR=$(get-src-dir "$topic")
-    TARGET_BUILD_XML_DIR="${BUILD_XML_DIR}${topic}/"
+#     SRC_DIR=$(get-src-dir "$topic")
+#     TARGET_BUILD_XML_DIR="${BUILD_XML_DIR}${topic}/"
 
-    cd "$TARGET_BUILD_XML_DIR" || exit 1
-    printf "\tProcessing %s/index.xml\n" "$(pwd)"
-    md_file="${BUILD_MD_HEXO_DIR}${topic}/index.md"
+#     cd "$TARGET_BUILD_XML_DIR" || exit 1
+#     printf "\tProcessing %s/index.xml\n" "$(pwd)"
 
-    xsltproc --xincludestyle "${XSL_DIR}topics.xsl" \
-        index.xml >"$md_file" || exit 1
+#     md_file="${BUILD_MD_HEXO_DIR}${topic}/index.md"
+#     printf "\tGenerating %s\n" "$md_file"
 
-    cleanMDFile "$md_file"
-done
+#     xsltproc --xincludestyle "${XSL_DIR}topics.xsl" \
+#         index.xml >"$md_file" || exit 1
 
-# XML_INDEX_PATH="${BUILD_XML_DIR}index.xml"
-# echo "==> Handling $XML_INDEX_PATH to generate top level index.md"
-# xsltproc --xincludestyle "${XSL_DIR}index.xsl" \
-#     "$XML_INDEX_PATH" >"${BUILD_MD_HEXO_DIR}index.md" || exit 1
+#     fixMDFile "$md_file"
+# done
+
+XML_INDEX_PATH="${BUILD_XML_DIR}index.xml"
+echo "==> Handling $XML_INDEX_PATH to generate top level index.md"
+xsltproc --xincludestyle "${XSL_DIR}index.xsl" \
+    "$XML_INDEX_PATH" >"${BUILD_MD_HEXO_DIR}index.md" || exit 1
+
+fixMDFile "${BUILD_MD_HEXO_DIR}index.md"
 
 # while IFS= read -r CAT; do
 #     label=$(
 #         echo "$CAT" | awk -F '|' '{print $3}' |
 #             awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2'
-#     )
+#          )
 #     id=$(echo "$CAT" | awk -F '|' '{print $2}')
 
 #     CAT_FILE_NAME="category-${id}.md"

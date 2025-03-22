@@ -5,6 +5,11 @@ title: <xsl:value-of select="@title" />
 date: <xsl:value-of select="@date" />
 description: An Asymptote tutorial by examples -- <xsl:value-of select="@topic" />
 ---
+<style>
+  header.post-header h1 a.post-edit-link @-{-@
+    display: none;
+  @-}-@
+</style>
 
 <xsl:apply-templates select="presentation" />
 <xsl:text>

@@ -26,7 +26,7 @@ Your browser does not support HTML5 video…
 </xsl:text>
 </xsl:when>
 <xsl:otherwise>
-<img class="imgborder" src="{@md5}.{@img_ext}" alt="Figure {@topic} {@number} Generated with Asymptote" loading="lazy" width="{@width}" height="{@height}" />
+<img src="{@md5}.{@img_ext}" alt="Figure {@topic} {@number} Generated with Asymptote" loading="lazy" width="{@width}" height="{@height}" />
 </xsl:otherwise>
 </xsl:choose>
 <xsl:apply-templates select="text-html" />
