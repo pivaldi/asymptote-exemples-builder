@@ -18,20 +18,17 @@
 <xsl:attribute name="loop">true</xsl:attribute>
 </xsl:if>
 
-<source src="{@md5}.mp4" type="video/mp4" />
+<source src="{@topic}/{@md5}.mp4" type="video/mp4" />
 Your browser does not support HTML5 video…
-<a src="{@md5}.gif">See the video as animated gif</a>.
+<a src="{@topic}/{@md5}.gif">See the video as animated gif</a>.
 </video>
-<xsl:text>
-</xsl:text>
 </xsl:when>
 <xsl:otherwise>
-<img src="{@md5}.{@img_ext}" alt="Figure {@topic} {@number} Generated with Asymptote" loading="lazy" width="{@width}" height="{@height}" />
+<img src="{@topic}/{@md5}.{@img_ext}" alt="Figure {@topic} {@number} Generated with Asymptote" loading="lazy" width="{@width}" height="{@height}" />
 </xsl:otherwise>
 </xsl:choose>
 <xsl:apply-templates select="text-html" />
 <xsl:text>
-
 </xsl:text>
 <a href="https://github.com/pivaldi/asymptote-exemples/blob/master/{@topic}/{@filename}.asy">
 Show <xsl:value-of select="@topic" />/<xsl:value-of select="@filename" />.asy on Github</a><xsl:text>.</xsl:text>  <xsl:text>
@@ -102,12 +99,12 @@ Build with <a href="https://github.com/pivaldi/asymptote-exemples-builder">asymp
   <xsl:template name="category-link">
     <xsl:param name="id" />
     <xsl:param name="label" />
-    <a href="{concat('category-', $id, '.html')}" rel="nofollow"><xsl:value-of select="$label" /></a>
+    <a href="{concat('category-', $id)}" rel="nofollow"><xsl:value-of select="$label" /></a>
   </xsl:template>
 
   <xsl:template name="tag-link">
     <xsl:param name="id" />
     <xsl:param name="label" />
-    <a href="{concat('tag-', $id, '.html')}" rel="nofollow">#<xsl:value-of select="$label" /></a>
+    <a href="{concat('tag-', $id)}" rel="nofollow">#<xsl:value-of select="$label" /></a>
   </xsl:template>
 </xsl:stylesheet>

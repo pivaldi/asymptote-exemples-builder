@@ -2,8 +2,7 @@
 <xsl:output method="html" encoding="UTF-8" />
 <xsl:include href="templates.xsl"/>
 <xsl:template match="/asy-codes">
-<xsl:text>
----
+<xsl:text>---
 title: An Extensive Asymptote Gallery
 date: 2018-04-30 22:49:15
 ---
@@ -29,7 +28,7 @@ Here is an unofficial extensive gallery of examples.
 <xsl:for-each select="asy-code">
 - <xsl:call-template name="makelink">
       <xsl:with-param name="text" select="@topic" />
-      <xsl:with-param name="url" select="concat(@topic, '.html')" />
+      <xsl:with-param name="url" select="@topic" />
     </xsl:call-template>
 </xsl:for-each>
 

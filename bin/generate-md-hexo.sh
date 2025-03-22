@@ -38,25 +38,16 @@ function fixMDFile() {
     sed -i 's/@-\&lbrace;-@/{/g;s/@-\&rbrace;-@/}/g' "$1" || exit 1
 }
 
-# for topic in $_TOPICS; do
-#     # for topic in animations; do
-#     echo "==> Handling topic '$topic'..."
+function getLabel() {
+    echo "$1" | awk -F '|' '{print $3}' |
+        awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2'
+}
 
-#     SRC_DIR=$(get-src-dir "$topic")
-#     TARGET_BUILD_XML_DIR="${BUILD_XML_DIR}${topic}/"
+function getID() {
+    echo "$1" | awk -F '|' '{print $2}'
+}
 
-#     cd "$TARGET_BUILD_XML_DIR" || exit 1
-#     printf "\tProcessing %s/index.xml\n" "$(pwd)"
-
-#     md_file="${BUILD_MD_HEXO_DIR}${topic}/index.md"
-#     printf "\tGenerating %s\n" "$md_file"
-
-#     xsltproc --xincludestyle "${XSL_DIR}topics.xsl" \
-#         index.xml >"$md_file" || exit 1
-
-#     fixMDFile "$md_file"
-# done
-
+## Create asymptote/index.md
 XML_INDEX_PATH="${BUILD_XML_DIR}index.xml"
 echo "==> Handling $XML_INDEX_PATH to generate top level index.md"
 xsltproc --xincludestyle "${XSL_DIR}index.xsl" \
@@ -64,32 +55,53 @@ xsltproc --xincludestyle "${XSL_DIR}index.xsl" \
 
 fixMDFile "${BUILD_MD_HEXO_DIR}index.md"
 
-# while IFS= read -r CAT; do
-#     label=$(
-#         echo "$CAT" | awk -F '|' '{print $3}' |
-#             awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2'
-#          )
-#     id=$(echo "$CAT" | awk -F '|' '{print $2}')
+## Create _TOPIC_.md
+for topic in $_TOPICS; do
+    # for topic in animations; do
+    echo "==> Handling topic '$topic'..."
 
-#     CAT_FILE_NAME="category-${id}.md"
-#     echo "==> Handling $XML_INDEX_PATH to generate category file $CAT_FILE_NAME"
-#     xsltproc --stringparam label "$label" --stringparam id "$id" \
-#         --xincludestyle "${XSL_DIR}category.xsl" \
-#         "$XML_INDEX_PATH" >"${BUILD_MD_HEXO_DIR}${CAT_FILE_NAME}" || exit 1
+    SRC_DIR=$(get-src-dir "$topic")
+    TARGET_BUILD_XML_DIR="${BUILD_XML_DIR}${topic}/"
 
-# done <"${SOURCE_DIR}categories.txt"
+    cd "$TARGET_BUILD_XML_DIR" || exit 1
+    printf "\tProcessing %s/index.xml\n" "$(pwd)"
 
-# while IFS= read -r TAG; do
-#     label=$(
-#         echo "$TAG" | awk -F '|' '{print $3}' |
-#             awk -F '|' '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}2'
-#     )
-#     id=$(echo "$TAG" | awk -F '|' '{print $2}')
+    md_file="${BUILD_MD_HEXO_DIR}${topic}.md"
+    printf "\tGenerating %s\n" "$md_file"
 
-#     TAG_FILE_NAME="tag-${id}.md"
-#     echo "==> Handling $XML_INDEX_PATH to generate tag file $TAG_FILE_NAME"
-#     xsltproc --stringparam label "$label" --stringparam id "$id" \
-#         --xincludestyle "${XSL_DIR}tag.xsl" \
-#         "$XML_INDEX_PATH" >"${BUILD_MD_HEXO_DIR}${TAG_FILE_NAME}" || exit 1
+    xsltproc --xincludestyle "${XSL_DIR}topics.xsl" \
+        index.xml >"$md_file" || exit 1
 
-# done <"${SOURCE_DIR}tags.txt"
+    fixMDFile "$md_file"
+done
+
+## Create category-${id}.md
+while IFS= read -r CAT; do
+    label=$(getLabel "$CAT")
+    id=$(getID "$CAT")
+
+    CAT_FILE_NAME="category-${id}.md"
+    echo "==> Handling $XML_INDEX_PATH to generate category file ${CAT_FILE_NAME}"
+
+    CAT_FILE_PATH="${BUILD_MD_HEXO_DIR}$CAT_FILE_NAME"
+    xsltproc --stringparam label "$label" --stringparam id "$id" \
+        --xincludestyle "${XSL_DIR}category.xsl" \
+        "$XML_INDEX_PATH" >"$CAT_FILE_PATH" || exit 1
+
+    fixMDFile "$CAT_FILE_PATH"
+done <"${SOURCE_DIR}categories.txt"
+
+## Create tag-${id}.md
+while IFS= read -r TAG; do
+    label=$(getLabel "$TAG")
+    id=$(getID "$TAG")
+
+    TAG_FILE_NAME="tag-${id}.md"
+    TAG_FILE_PATH="${BUILD_MD_HEXO_DIR}${TAG_FILE_NAME}"
+    echo "==> Handling $XML_INDEX_PATH to generate tag file $TAG_FILE_NAME"
+    xsltproc --stringparam label "$label" --stringparam id "$id" \
+        --xincludestyle "${XSL_DIR}tag.xsl" \
+        "$XML_INDEX_PATH" >"$TAG_FILE_PATH" || exit 1
+
+    fixMDFile "$TAG_FILE_PATH"
+done <"${SOURCE_DIR}tags.txt"
