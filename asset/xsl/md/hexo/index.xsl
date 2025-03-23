@@ -5,6 +5,7 @@
 <xsl:text>---
 title: An Extensive Asymptote Gallery
 date: 2018-04-30 22:49:15
+lang: en
 ---
 </xsl:text>
 <style>header.post-header h1 a.post-edit-link @-{-@display: none;@-}-@</style>

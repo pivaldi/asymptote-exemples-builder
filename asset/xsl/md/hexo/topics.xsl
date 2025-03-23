@@ -3,6 +3,7 @@
 <xsl:template match="/asy-code">---
 title: <xsl:value-of select="@title" />
 date: <xsl:value-of select="@date" />
+lang: en
 description: An Asymptote tutorial by examples -- <xsl:value-of select="@topic" />
 ---
 <style>
