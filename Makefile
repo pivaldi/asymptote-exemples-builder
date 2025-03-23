@@ -12,7 +12,7 @@ generate_assets_cmd := $(current_dir)/bin/generate-assets.sh
 generate_md_hexo_cmd := $(current_dir)/bin/generate-md-hexo.sh
 
 .PHONY: all
-all: install assets xmls html
+all: install assets xmls html md-hexo
 
 .PHONY: install
 install:
@@ -49,4 +49,8 @@ assets-clean:
 
 .PHONY: sync-hexo
 sync-hexo:
+	$(current_dir)/bin/sync-to-hexo-blog.sh
+
+.PHONY: deploy-hexo
+deploy-hexo: assets xmls md-hexo sync-hexo
 	$(current_dir)/bin/sync-to-hexo-blog.sh

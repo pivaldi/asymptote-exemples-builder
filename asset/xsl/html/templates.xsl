@@ -132,7 +132,7 @@
 
   <xsl:template name="footer">
     <xsl:param name="date" />
-    <div class="footer">
+    <div class="inner-footer">
       <p>
         Build with <a href="https://github.com/pivaldi/asymptote-exemples-builder">asymptote-exemples-builder</a> the <xsl:value-of select="$date" />
         <br/>©2011 <a href="https://www.piprime.fr">Philippe Ivaldi</a>

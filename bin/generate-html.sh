@@ -80,3 +80,6 @@ while IFS= read -r TAG; do
         "$XML_INDEX_PATH" >"${BUILD_HTML_DIR}${TAG_FILE_NAME}" || exit 1
 
 done <"${SOURCE_DIR}tags.txt"
+
+echo "Open in your browser the file ${BUILD_HTML_DIR}index.html"
+echo "Try the command xdg-open ${BUILD_HTML_DIR}index.html"
