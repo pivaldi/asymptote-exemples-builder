@@ -61,7 +61,7 @@ Browse with the finest granularity using the tags.
 </xsl:for-each>
 
 <xsl:call-template name="footer">
-<xsl:with-param name="date" select="@date" />
+<xsl:with-param name="date" select="@date_current" />
 </xsl:call-template>
 </xsl:template>
 </xsl:stylesheet>

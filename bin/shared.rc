@@ -14,7 +14,8 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 . "$SCRIPT_DIR/lib/lib.sh" || exit 1
 
 DEBUG=yes
-DATE=$(LANG=US date +"%Y-%m-%d@%T")
+DATE=$(LANG=US date +"2011-01-01 %T")
+DATE_CURRENT=$(LANG=US date +"%Y-%m-%d %T")
 
 # export LANG=C.UTF-8
 # export LANG="fr_FR.UTF-8"
@@ -54,6 +55,8 @@ BUILD_XML_DIR="${BUILD_DIR}xml/"
 BUILD_HTML_DIR="${BUILD_DIR}html/"
 # Directory where to write the md/hexo files
 BUILD_MD_HEXO_DIR="${BUILD_DIR}md/hexo/"
+BUILD_MD_HEXO_PAGE_DIR="${BUILD_MD_HEXO_DIR}page/"
+BUILD_MD_HEXO_POST_DIR="${BUILD_MD_HEXO_DIR}post/"
 # Directory, where the generated asy pictures and colored codes live
 BUILD_ASY_DIR="${BUILD_DIR}asy/"
 

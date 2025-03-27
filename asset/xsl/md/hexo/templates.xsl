@@ -6,7 +6,10 @@
   </xsl:template>
 
 <xsl:template match="code" name="code">
+  <xsl:param name="disable_subtitle" />
+<xsl:if test="not(normalize-space($disable_subtitle))">
 ## <xsl:value-of select="@topic"/>-fig<xsl:value-of select="@number"/>
+</xsl:if>
 <xsl:text>
 </xsl:text>
 <xsl:text>
@@ -18,21 +21,19 @@
 <xsl:attribute name="loop">true</xsl:attribute>
 </xsl:if>
 
-<source src="{@topic}/{@md5}.mp4" type="video/mp4" />
+<source src="/media/asymptote/{@topic}/{@md5}.mp4" type="video/mp4" />
 Your browser does not support HTML5 video…
-<a src="{@topic}/{@md5}.gif">See the video as animated gif</a>.
+<a src="/media/asymptote/{@topic}/{@md5}.gif">See the video as animated gif</a>.
 </video>
 </xsl:when>
 <xsl:otherwise>
-<img src="{@topic}/{@md5}.{@img_ext}" alt="Figure {@topic} {@number} Generated with Asymptote" loading="lazy" width="{@width}" height="{@height}" />
+<img src="/media/asymptote/{@topic}/{@md5}.{@img_ext}" alt="Figure {@topic} {@number} Generated with Asymptote" loading="lazy" width="{@width}" height="{@height}" />
 </xsl:otherwise>
 </xsl:choose>
 <xsl:apply-templates select="text-html" />
 <xsl:text>
 </xsl:text>
-<a href="https://github.com/pivaldi/asymptote-exemples/blob/master/{@topic}/{@filename}.asy">
-Show <xsl:value-of select="@topic" />/<xsl:value-of select="@filename" />.asy on Github</a><xsl:text>.</xsl:text>  <xsl:text>
-</xsl:text>
+<a href="https://github.com/pivaldi/asymptote-exemples/blob/master/{@topic}/{@filename}.asy">Show <xsl:value-of select="@topic" />/<xsl:value-of select="@filename" />.asy on Github</a><xsl:text>.</xsl:text><xsl:text>  </xsl:text>
 Generated with <a href="http://asymptote.sourceforge.net/">Asymptote</a> <xsl:value-of select="@asy_version" />.  <xsl:text>
 </xsl:text>
 <xsl:for-each select="../categories/category">
@@ -100,12 +101,12 @@ Last modified the <xsl:value-of select="$date" /><br/>
   <xsl:template name="category-link">
     <xsl:param name="id" />
     <xsl:param name="label" />
-    <a href="{concat('category-', $id)}" rel="nofollow"><xsl:value-of select="$label" /></a>
+    <a href="{concat('/asymptote/', 'category-', $id)}" rel="nofollow"><xsl:value-of select="$label" /></a>
   </xsl:template>
 
   <xsl:template name="tag-link">
     <xsl:param name="id" />
     <xsl:param name="label" />
-    <a href="{concat('tag-', $id)}" rel="nofollow">#<xsl:value-of select="$label" /></a>
+    <a href="{concat('/asymptote/', 'tag-', $id)}" rel="nofollow">#<xsl:value-of select="$label" /></a>
   </xsl:template>
 </xsl:stylesheet>

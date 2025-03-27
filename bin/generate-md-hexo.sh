@@ -47,13 +47,41 @@ function getID() {
     echo "$1" | awk -F '|' '{print $2}'
 }
 
+# Retrive the xml fig source files in the directory $1
+function get_xml_files() {
+    find "$1" -maxdepth 1 -name 'fig*\.xml' -type f -print | sort
+}
+
+## Generete all the md files for $the topic $1
+function generate_post_figure() {
+    topic="$1"
+    TARGET_BUILD_XML_DIR="${BUILD_XML_DIR}${topic}/"
+    cd "$TARGET_BUILD_XML_DIR" || exit 1
+    printf "\t==> Generating posts of topic '%s'\n" "$topic"
+
+    for fic in $(get_xml_files "$TARGET_BUILD_XML_DIR"); do
+        md_dir="${BUILD_MD_HEXO_POST_DIR}${topic}/"
+        [ -e "$md_dir" ] || {
+            mkdir -p "$md_dir" || exit 1
+        }
+
+        printf "\t\tProcessing %s to %s\n" "$fic" "$md_dir"
+        basefic=$(basename "$fic")
+        baseficssext=${basefic%.*}
+        md_file="${md_dir}${baseficssext}.md"
+
+        xsltproc --xincludestyle "${XSL_DIR}figure.xsl" "${basefic}" >"${md_file}" || exit 1
+        fixMDFile "${md_file}"
+    done
+}
+
 ## Create asymptote/index.md
 XML_INDEX_PATH="${BUILD_XML_DIR}index.xml"
 echo "==> Handling $XML_INDEX_PATH to generate top level index.md"
 xsltproc --xincludestyle "${XSL_DIR}index.xsl" \
-    "$XML_INDEX_PATH" >"${BUILD_MD_HEXO_DIR}index.md" || exit 1
+    "$XML_INDEX_PATH" >"${BUILD_MD_HEXO_PAGE_DIR}index.md" || exit 1
 
-fixMDFile "${BUILD_MD_HEXO_DIR}index.md"
+fixMDFile "${BUILD_MD_HEXO_PAGE_DIR}index.md"
 
 ## Create _TOPIC_.md
 for topic in $_TOPICS; do
@@ -66,13 +94,16 @@ for topic in $_TOPICS; do
     cd "$TARGET_BUILD_XML_DIR" || exit 1
     printf "\tProcessing %s/index.xml\n" "$(pwd)"
 
-    md_file="${BUILD_MD_HEXO_DIR}${topic}.md"
+    md_file="${BUILD_MD_HEXO_PAGE_DIR}${topic}.md"
     printf "\tGenerating %s\n" "$md_file"
 
     xsltproc --xincludestyle "${XSL_DIR}topics.xsl" \
         index.xml >"$md_file" || exit 1
 
     fixMDFile "$md_file"
+
+    generate_post_figure "$topic"
+
 done
 
 ## Create category-${id}.md
@@ -83,7 +114,7 @@ while IFS= read -r CAT; do
     CAT_FILE_NAME="category-${id}.md"
     echo "==> Handling $XML_INDEX_PATH to generate category file ${CAT_FILE_NAME}"
 
-    CAT_FILE_PATH="${BUILD_MD_HEXO_DIR}$CAT_FILE_NAME"
+    CAT_FILE_PATH="${BUILD_MD_HEXO_PAGE_DIR}$CAT_FILE_NAME"
     xsltproc --stringparam label "$label" --stringparam id "$id" \
         --xincludestyle "${XSL_DIR}category.xsl" \
         "$XML_INDEX_PATH" >"$CAT_FILE_PATH" || exit 1
@@ -97,7 +128,7 @@ while IFS= read -r TAG; do
     id=$(getID "$TAG")
 
     TAG_FILE_NAME="tag-${id}.md"
-    TAG_FILE_PATH="${BUILD_MD_HEXO_DIR}${TAG_FILE_NAME}"
+    TAG_FILE_PATH="${BUILD_MD_HEXO_PAGE_DIR}${TAG_FILE_NAME}"
     echo "==> Handling $XML_INDEX_PATH to generate tag file $TAG_FILE_NAME"
     xsltproc --stringparam label "$label" --stringparam id "$id" \
         --xincludestyle "${XSL_DIR}tag.xsl" \

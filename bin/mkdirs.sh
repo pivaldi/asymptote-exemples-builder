@@ -26,7 +26,7 @@ for topic in $TOPICS; do
   }
 
   mkdir -p "${BUILD_DIR}"{asy,xml,html}/"${topic}"
-  mkdir -p "${BUILD_DIR}md/hexo/${topic}"
+  mkdir -p "${BUILD_DIR}md/hexo/"{page,post} "${topic}"
 
   DIR_CREATED=true
 done

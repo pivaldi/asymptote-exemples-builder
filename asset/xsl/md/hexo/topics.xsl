@@ -17,7 +17,7 @@ description: An Asymptote tutorial by examples -- <xsl:value-of select="@topic" 
 </xsl:text>
 <xsl:apply-templates select="code" name="code"/>
 <xsl:call-template name="footer">
-<xsl:with-param name="date" select="@date" />
+<xsl:with-param name="date" select="@date_current" />
 </xsl:call-template>
 </xsl:template>
 </xsl:stylesheet>

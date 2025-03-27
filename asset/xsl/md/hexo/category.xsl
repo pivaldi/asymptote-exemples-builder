@@ -3,6 +3,7 @@
 <xsl:template match="/asy-codes">
 <xsl:text>---
 noindex: true
+canonical: false
 title: Category </xsl:text><xsl:value-of select="$label"/><xsl:text> -- Asymptote Gallery
 date: 2018-04-30 22:49:15
 lang: en
@@ -14,7 +15,7 @@ lang: en
 <xsl:apply-templates select="asy-code[.//category[@id=$id]]/code" name="code"/>
 
 <xsl:call-template name="footer">
-  <xsl:with-param name="date" select="@date" />
+  <xsl:with-param name="date" select="@date_current" />
 </xsl:call-template>
 </xsl:template>
 <xsl:include href="templates.xsl"/>

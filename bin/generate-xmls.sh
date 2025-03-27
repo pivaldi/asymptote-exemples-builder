@@ -55,7 +55,7 @@ tagsFile="${SOURCE_DIR}tags.txt"
 
 cat >"${BUILD_XML_DIR}index.xml" <<EOF
 <?xml version="1.0" ?>
-<asy-codes date="$DATE">
+<asy-codes date="$DATE" date_current="$DATE_CURRENT">
 <all-categories>
 $(getXMLListFromFile "$catsFile" 'category')
 </all-categories>
@@ -86,16 +86,7 @@ for topic in $_TOPICS; do
   # * L'index de tous les codes *
   cat >"${TARGET_BUILD_XML_DIR}index.xml" <<EOF
 <?xml version="1.0" ?>
-<asy-code title="$(cat "${SRC_DIR}title.txt")" topic="$topic" date="$DATE">
-<presentation>$(cat "${SRC_DIR}presentation.html")</presentation>
-$(echo -e "$CATS")
-EOF
-
-  # ---------------
-  # * Les figures *
-  cat >"${TARGET_BUILD_XML_DIR}figures.xml" <<EOF
-<?xml version="1.0" ?>
-<asy-figures title="Pic - $(cat "${SRC_DIR}title.txt")" date="$DATE" resource="${RES}">
+<asy-code title="$(cat "${SRC_DIR}title.txt")" topic="$topic" date="$DATE" date_current="$DATE_CURRENT">
 <presentation>$(cat "${SRC_DIR}presentation.html")</presentation>
 $(echo -e "$CATS")
 EOF
@@ -103,6 +94,7 @@ EOF
   numfig=1001
 
   for fic in $(get_asy_files "$SRC_DIR"); do
+    DATE=$(LANG=US date -d "$DATE + 1 hour" +"%Y-%m-%d %T")
     printf "\t=> Processing asy file %s…\n" "${fic}"
 
     ficssext=${fic%.*}
@@ -150,13 +142,13 @@ EOF
     # * code de la figure *
     cat >"${TARGET_BUILD_XML_DIR}${ficssext}.xml" <<EOF
 <?xml version="1.0" ?>
-<asy-code title="$(cat "${SRC_DIR}title.txt")" date="$DATE">
+<asy-code title="$(cat "${SRC_DIR}title.txt")" date="$DATE" date_current="$DATE_CURRENT" ${CODE_ATTRS}>
 <presentation>$(iconv -f utf8 <"${SRC_DIR}presentation.html")</presentation>
 $(echo -e "$CATS")
 EOF
 
     {
-      echo "<code $CODE_ATTRS>"
+      echo "<code ${CODE_ATTRS}>"
       echo -e "$TAGS"
       echo "<text-md>"
       [ -e "${fullssext}.md" ] && cat "${fullssext}.md"
@@ -174,19 +166,11 @@ EOF
 </asy-code>
 EOF
 
-    cat >>"${TARGET_BUILD_XML_DIR}figures.xml" <<EOF
-<figure $CODE_ATTRS/>
-EOF
-
     numfig=$((numfig + 1))
   done
 
   cat >>"${TARGET_BUILD_XML_DIR}index.xml" <<EOF
 </asy-code>
-EOF
-
-  cat >>"${TARGET_BUILD_XML_DIR}figures.xml" <<EOF
-</asy-figures>
 EOF
 
   sed '1d' "${TARGET_BUILD_XML_DIR}index.xml" >>"${BUILD_XML_DIR}index.xml"
