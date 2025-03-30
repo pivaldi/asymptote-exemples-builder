@@ -134,6 +134,7 @@ for topic in $TOPICS; do
   echo "==> Handling topic '$topic'..."
 
   SRC_DIR=$(get-src-dir "$topic")
+  create_dir_if_not_exists "$SRC_DIR"
 
   for fic in $(get_asy_files "$SRC_DIR"); do
     cd "$SRC_DIR" || die $?
@@ -248,6 +249,8 @@ for topic in $TOPICS; do
     fi
   done
 done
+
+create_dir_if_not_exists "$BUILD_ASY_DIR"
 
 rsync -au \
   --exclude='*+*.pdf' \

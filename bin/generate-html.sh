@@ -26,6 +26,8 @@ _TOPICS="$1"
 
 [ "$_TOPICS" = "" ] && _TOPICS=$TOPICS
 
+rm -rf "$BUILD_HTML_DIR" || exit 1
+
 ## Rsync the source of statics html files to the htlm build dir
 rsync -au "${ASSET_DIR}html/" "${BUILD_HTML_DIR}" || exit 1
 ## Rsync the asy build dir to the html build dir in order to obtain a monolitic/independent

@@ -26,6 +26,8 @@ _TOPICS="$1"
 
 [ "$_TOPICS" = "" ] && _TOPICS=$TOPICS
 
+rm -rf "$BUILD_MD_HEXO_DIR" || exit 1
+
 ## Rsync the asy build dir to the md build dir in order to obtain a monolitic/independent
 ## md directory structure.
 rsync -au "${BUILD_ASY_DIR}" "${BUILD_MD_HEXO_DIR}" || exit 1
@@ -61,9 +63,7 @@ function generate_post_figure() {
 
     for fic in $(get_xml_files "$TARGET_BUILD_XML_DIR"); do
         md_dir="${BUILD_MD_HEXO_POST_DIR}${topic}/"
-        [ -e "$md_dir" ] || {
-            mkdir -p "$md_dir" || exit 1
-        }
+        create_dir_if_not_exists "$md_dir"
 
         printf "\t\tProcessing %s to %s\n" "$fic" "$md_dir"
         basefic=$(basename "$fic")

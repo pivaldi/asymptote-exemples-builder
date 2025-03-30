@@ -39,7 +39,14 @@ case $ROOT_PROJECT_DIR in *[!/]*/) ROOT_PROJECT_DIR=${ROOT_PROJECT_DIR%"${ROOT_P
 
 ROOT_PROJECT_DIR="${ROOT_PROJECT_DIR}/"
 
+function create_dir_if_not_exists() {
+  [ -e "$1" ] || {
+    mkdir -p "$1" || exit 1
+  }
+}
+
 TMP_PROJECT_DIR="${ROOT_PROJECT_DIR}tmp/"
+create_dir_if_not_exists "$TMP_PROJECT_DIR"
 
 ## The source assets directory
 ASSET_DIR="${ROOT_PROJECT_DIR}asset/"
@@ -47,16 +54,23 @@ ASSET_DIR="${ROOT_PROJECT_DIR}asset/"
 SOURCE_DIR="${ROOT_PROJECT_DIR}src/"
 ## Build export dir
 BUILD_DIR="${ROOT_PROJECT_DIR}build/" # Doit se terminer par un '/'
+create_dir_if_not_exists "$BUILD_DIR"
+
 # The list of topics to handle
 TOPICS=$(cd "${SOURCE_DIR}" && find -mindepth 1 -maxdepth 1 ! -path ./modules ! -path ./.git ! -path ./bin -type d -print | sed 's!^\./!!g' | sort -n)
 # Directory where to write the xml files
 BUILD_XML_DIR="${BUILD_DIR}xml/"
+create_dir_if_not_exists "$BUILD_XML_DIR"
 # Directory where to write the html files
 BUILD_HTML_DIR="${BUILD_DIR}html/"
+create_dir_if_not_exists "$BUILD_HTML_DIR"
 # Directory where to write the md/hexo files
 BUILD_MD_HEXO_DIR="${BUILD_DIR}md/hexo/"
 BUILD_MD_HEXO_PAGE_DIR="${BUILD_MD_HEXO_DIR}page/"
 BUILD_MD_HEXO_POST_DIR="${BUILD_MD_HEXO_DIR}post/"
+create_dir_if_not_exists "$BUILD_MD_HEXO_POST_DIR"
+create_dir_if_not_exists "$BUILD_MD_HEXO_PAGE_DIR"
+
 # Directory, where the generated asy pictures and colored codes live
 BUILD_ASY_DIR="${BUILD_DIR}asy/"
 
@@ -77,6 +91,8 @@ function sync-src-dir-to-tmp-dir() {
     echo "${SOURCE_DIR} does not exist"
     die 1
   }
+
+  create_dir_if_not_exists "$TMP_PROJECT_DIR"
 
   rsync -auv \
     --exclude='.git' --exclude='/bin' --exclude='all-tag.txt' \
