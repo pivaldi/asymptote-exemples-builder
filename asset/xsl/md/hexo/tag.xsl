@@ -4,6 +4,7 @@
 <xsl:text>---
 noindex: true
 canonical: false
+sitemap: false
 title: Tag </xsl:text><xsl:value-of select="$label"/><xsl:text> -- Asymptote Gallery
 date: 2018-04-30 22:49:15
 lang: en

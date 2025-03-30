@@ -6,6 +6,7 @@ date: <xsl:value-of select="@date" />
 id: <xsl:value-of select="@id" />
 lang: en
 description: An Asymptote code and the generated picture <xsl:value-of select="@topic" />--<xsl:value-of select="@number" />.
+sitemap: false
 <xsl:for-each select="categories/category">
 <xsl:if test="position() = 1"><xsl:text disable-output-escaing="yes">categories:
   - [Tech, Programming, Asymptote]</xsl:text></xsl:if>
