@@ -34,7 +34,7 @@ IMPORTd="\(<span class=\"builtin\">import<\/span>\) *carteApoints"
 COMC="s!${IMPORTc}!\1 <a href=\"https://github.com/pivaldi/asymptote-packages\">Lsystem</a>!g"
 COMD="s!${IMPORTd}!\1 <a href=\https://github.com/pivaldi/asymptote-packages\">carteApoints</a>!g"
 
-rm -rf "${BUILD_XML_DIR}" || exit 1
+rm -rf "${BUILD_XML_DIR}" || exit 1 && create_dir_if_not_exists "${BUILD_XML_DIR}"
 
 function getXMLListFromFile() {
   local FILE="$1"

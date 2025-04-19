@@ -26,11 +26,17 @@ _TOPICS="$1"
 
 [ "$_TOPICS" = "" ] && _TOPICS=$TOPICS
 
-rm -rf "$BUILD_MD_HEXO_DIR" || exit 1
+[ -e "$BUILD_MD_HEXO_DIR" ] && {
+    rm -rf "$BUILD_MD_HEXO_DIR" || exit 1
+}
+
+for dir in "$BUILD_MD_HEXO_DIR" "$BUILD_MD_HEXO_PAGE_DIR" "$BUILD_MD_HEXO_MEDIA_DIR"; do
+    create_dir_if_not_exists "$dir"
+done
 
 ## Rsync the asy build dir to the md build dir in order to obtain a monolitic/independent
 ## md directory structure.
-rsync -au "${BUILD_ASY_DIR}" "${BUILD_MD_HEXO_DIR}" || exit 1
+rsync -au "$BUILD_ASY_DIR" "$BUILD_MD_HEXO_MEDIA_DIR" || exit 1
 
 XSL_DIR="${ROOT_PROJECT_DIR}asset/xsl/md/hexo/"
 
