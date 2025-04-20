@@ -16,7 +16,7 @@
 </xsl:text>
 <xsl:choose>
 <xsl:when test="@is_anim='true'">
-<video id="{@topic}-video{@number}" muted="true" controls="true" alt="Asymptote figure {@topic} {@number}" poster="{@md5}.{@img_ext}" width="{@width}" height="{@height}" >
+<video id="{@topic}-video{@number}" muted="true" controls="true" alt="Asymptote figure {@topic} {@number}" poster="/media/asymptote/{@topic}/{@md5}.{@img_ext}" width="{@width}" height="{@height}" >
 <xsl:if test="@loop='true'">
 <xsl:attribute name="loop">true</xsl:attribute>
 </xsl:if>

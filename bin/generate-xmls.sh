@@ -97,7 +97,8 @@ EOF
   numfig=1001
 
   for fic in $(get_asy_files "$SRC_DIR"); do
-    DATE=$(LANG=US date -d "$DATE + 1 hour" +"%Y-%m-%d %T")
+    ## -1 minute because older post are displayed last and we want to keep the topic order.
+    DATE=$(LANG=US date -d "$DATE  1 minute ago" +"%Y-%m-%d %T")
     printf "\t=> Processing asy file %s…\n" "${fic}"
 
     ficssext=${fic%.*}

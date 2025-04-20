@@ -26,6 +26,9 @@ _TOPICS="$1"
 
 [ "$_TOPICS" = "" ] && _TOPICS=$TOPICS
 
+## because older post are displayed last and we want to keep the topic order.
+_TOPICS=$(echo "$_TOPICS" | sort -nr)
+
 [ -e "$BUILD_MD_HEXO_DIR" ] && {
     rm -rf "$BUILD_MD_HEXO_DIR" || exit 1
 }
@@ -60,7 +63,7 @@ function get_xml_files() {
     find "$1" -maxdepth 1 -name 'fig*\.xml' -type f -print | sort
 }
 
-## Generete all the md files for $the topic $1
+## Generete all the md files for the topic $1
 function generate_post_figure() {
     topic="$1"
     TARGET_BUILD_XML_DIR="${BUILD_XML_DIR}${topic}/"
@@ -109,7 +112,6 @@ for topic in $_TOPICS; do
     fixMDFile "$md_file"
 
     generate_post_figure "$topic"
-
 done
 
 ## Create category-${id}.md

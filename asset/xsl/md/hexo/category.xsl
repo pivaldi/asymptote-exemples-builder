@@ -6,7 +6,7 @@ noindex: true
 sitemap: false
 canonical: false
 title: Category </xsl:text><xsl:value-of select="$label"/><xsl:text> -- Asymptote Gallery
-date: 2018-04-30 22:49:15
+date: 2011-04-30 22:49:15
 lang: en
 ---
 </xsl:text>

@@ -4,7 +4,7 @@
 <xsl:template match="/asy-codes">
 <xsl:text>---
 title: An Extensive Asymptote Gallery
-date: 2018-04-30 22:49:15
+date: 2011-04-30 22:49:15
 lang: en
 ---
 </xsl:text>
