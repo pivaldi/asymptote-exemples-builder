@@ -9,9 +9,9 @@ description: An Asymptote code and the generated picture <xsl:value-of select="@
 sitemap: false
 <xsl:for-each select="categories/category">
 <xsl:if test="position() = 1"><xsl:text disable-output-escaing="yes">categories:
-  - [Tech, Programming, Asymptote]</xsl:text></xsl:if>
+- [EN, Tech, Programming, Asymptote]</xsl:text></xsl:if>
 <xsl:text disable-output-escaing="yes">
-  - [Tech, Programming, Asymptote, </xsl:text><xsl:value-of select="." /><xsl:text> ]</xsl:text>
+- [EN, Tech, Programming, Asymptote, </xsl:text><xsl:value-of select="." /><xsl:text> ]</xsl:text>
 </xsl:for-each>
 <xsl:text>
 </xsl:text>
